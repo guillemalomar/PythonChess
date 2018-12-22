@@ -1,11 +1,18 @@
+import os
 import sys
+from shutil import copyfile
 from src.obtain_values.obtain_values import obtain_pos_value
 from src.conf.settings import messages, letters
 from src.checks.checks import check_in_board
 
 
 def format_input(input_str):
-    if input_str.lower() == 'exit\n':
+    if input_str.lower() == 'exit':
+        os.remove('movements.log')
+        os.remove('current.log')
+        exit()
+    elif input_str.lower() == 'save':
+        copyfile('current.log', 'movements.log')
         exit()
     if len(input_str) == 2:
         if input_str[0].lower() in letters:
