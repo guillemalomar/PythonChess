@@ -1,13 +1,33 @@
 import sys
 from src.obtain_values.obtain_values import obtain_pos_value
-from src.input_output.outputs import format_input
-from src.conf.settings import messages
+from src.conf.settings import messages, letters
 from src.checks.checks import check_in_board
 
 
-def choose_piece(turn, board):
+def format_input(input_str):
+    if input_str.lower() == 'exit\n':
+        exit()
+    if len(input_str) == 2:
+        if input_str[0].lower() in letters:
+            position = input_str
+        else:
+            return 0
+    elif len(input_str) == 3:
+        if input_str[0].lower() in letters:
+            position = input_str.split(' ')
+        else:
+            return 0
+    else:
+        return 0
+    return position
+
+
+def choose_piece(turn, board, def_pos=False):
     print(messages['CHOOSE_PIECE'].format(turn))
-    position = str(sys.stdin.readline())
+    if not def_pos:
+        position = str(sys.stdin.readline()).replace('\n', '')
+    else:
+        position = def_pos
     position = format_input(position)
     if not position:
         return 0
@@ -24,9 +44,12 @@ def choose_piece(turn, board):
             return 0
 
 
-def choose_move(board):
+def choose_move(board, def_pos=False):
     print(messages['CHOOSE_MOVE'])
-    position2 = str(sys.stdin.readline())
+    if not def_pos:
+        position2 = str(sys.stdin.readline()).replace('\n', '')
+    else:
+        position2 = def_pos
     position2 = format_input(position2)
     if not position2:
         return 0

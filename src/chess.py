@@ -21,10 +21,10 @@ def main_function(coord_x_or, coord_y_or, turn):
         while not target:
             while not position:
                 position = choose_piece(turn, board)
-            target = choose_move(position, board, turn)
+            target = choose_move(board)
             if target:
                 if check_correct_move(position, target, board):
-                    move_piece(position, target, board)
+                    board = move_piece(position, target, board)
             position = 0
         print_table(board)
         turn = next(turn_iter)

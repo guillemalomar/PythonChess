@@ -22,15 +22,3 @@ def print_table(board):
     print('|    ' + board_delimiter * ((3*len(board[0]))+3) + '   |')
     print('|      ' + '  '.join([str(i+1) for i in range(len(board[0]))]) + '      |')
     print(" ----------------------------------")
-
-
-def format_input(input_str):
-    if input_str.lower()[0:4] == 'exit':
-        exit()
-    if len(input_str) == 3:
-        position = input_str
-    elif len(input_str) == 4:
-        position = input_str.split(' ')
-    else:
-        return 0
-    return position

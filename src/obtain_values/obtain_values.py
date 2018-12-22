@@ -6,4 +6,7 @@ def obtain_pos_value(position, board):
 
 
 def obtain_v_coord(letter_coordinate):
-    return letters.index(letter_coordinate.lower())
+    try:
+        return letters.index(letter_coordinate.lower())
+    except ValueError:
+        return False

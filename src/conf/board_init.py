@@ -1,4 +1,6 @@
+
 def board_init(coordinates_x, coordinates_y):
+
     board = [['  ' for _ in range(coordinates_x)] for _ in range(coordinates_y)]
 
     board[0][0] = 'TB'
