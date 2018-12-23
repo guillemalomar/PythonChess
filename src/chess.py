@@ -6,7 +6,7 @@ from src.conf.settings import size_x, size_y
 from src.conf.board_init import board_init
 from src.conf.logger import setup_logger
 from src.input_output.inputs import choose_move, choose_piece
-from src.input_output.outputs import print_table, clean_screen
+from src.input_output.outputs import print_table, clean_screen, print_legend
 from src.moves.moves import move_piece
 
 
@@ -57,7 +57,8 @@ def main_function(coord_x_or, coord_y_or, turn, cont_file=''):
 if __name__ == "__main__":
     clean_screen()
 
-    print("Chess app")
+    print("##############\n# CHESS GAME #\n##############")
+    print_legend()
 
     # Arguments are taken from command line
 
@@ -81,5 +82,5 @@ if __name__ == "__main__":
     if args.cont:
         main_function(size_x, size_y, turn=initial_turn, cont_file='movements.log')
     else:
-        # main_function(size_x, size_y, turn=initial_turn)  # TESTING
-        main_function(size_x, size_y, turn=initial_turn, cont_file='movements.log')
+        main_function(size_x, size_y, turn=initial_turn)  # TESTING
+        # main_function(size_x, size_y, turn=initial_turn, cont_file='movements.log')
