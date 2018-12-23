@@ -3,6 +3,13 @@ size_y = 8
 
 board_delimiter = '#'
 
+pieces = {'K': 'King',
+          'Q': 'Queen',
+          'H': 'Horse',
+          'T': 'Tower',
+          'B': 'Bishop',
+          'P': 'Pawn'}
+
 messages = {'CHOOSE_PIECE': "Turn for {} player, choose piece to move (V H):",
             'CHOOSE_MOVE': "Choose position to move (V H):",
             'OWN_ATTACK': "We cannot attack our own piece",
