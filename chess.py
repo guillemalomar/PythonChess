@@ -13,8 +13,8 @@ from src.moves.moves import move_piece
 turn_iter = itertools.cycle('WB')
 
 formatter = logging.Formatter('%(message)s')
-current_logger = setup_logger('log1', "src/logs/current.log", with_formatter=formatter)
-super_logger = setup_logger('log2', "src/logs/all.log")
+current_logger = setup_logger('log1', "logs/current.log", with_formatter=formatter)
+super_logger = setup_logger('log2', "logs/all.log")
 
 
 def main_function(coord_x_or, coord_y_or, turn, cont_file=''):
@@ -69,7 +69,8 @@ if __name__ == "__main__":
     parser.add_argument('--sizey', action="store", dest="size_y",
                         help="Vertical size of the chess board",
                         default=size_y, type=int)
-    parser.add_argument('-c', action="store_true", help="If you want to continue a game stored in src/logs/movements.log")
+    parser.add_argument('-c', action="store_true",
+                        help="If you want to continue a game stored in src/logs/movements.log")
     args = parser.parse_args()
     size_x = args.size_x
     size_y = args.size_y
@@ -81,7 +82,6 @@ if __name__ == "__main__":
     start_print()
 
     if args.c:
-        main_function(size_x, size_y, turn=initial_turn, cont_file='movements.log')
+        main_function(size_x, size_y, turn=initial_turn, cont_file='logs/movements.log')
     else:
-        main_function(size_x, size_y, turn=initial_turn)  # TESTING
-        # main_function(size_x, size_y, turn=initial_turn, cont_file='movements.log')
+        main_function(size_x, size_y, turn=initial_turn)

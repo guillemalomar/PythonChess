@@ -17,12 +17,18 @@ class ObtainValuesTests(unittest.TestCase):
         position = obtain_pos_value('c1', self.board)
         self.assertEqual(position, '  ')
 
+        position = obtain_pos_value('x1', self.board)
+        self.assertEqual(position, False)
+
     def test_obtainvcoord(self):
         position = obtain_v_coord('a')
         self.assertEqual(position, 0)
 
         position = obtain_v_coord('c')
         self.assertEqual(position, 2)
+
+        position = obtain_v_coord(1)
+        self.assertEqual(position, False)
 
 
 class MovesTests(unittest.TestCase):
