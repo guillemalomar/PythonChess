@@ -13,21 +13,32 @@ def clean_screen():
 
 def print_table(board):
 
-    print(" ------------------------- ")
+    print(' ' + ('-' * (2 * len(board[0]) + 9)))
     print('|     ' + ' '.join([str(i+1) for i in range(len(board[0]))]) + '     |')
     print('|   ' + board_delimiter * ((2*len(board[0]))+3) + '   | {}'.format('Killed by B:' + ' '.join(white_deaths) if len(white_deaths) else ''))
     for i in range(len(board)):
         line = '| ' + letters[i].upper() + ' ' + board_delimiter + ' '
         values = ''
         for j in range(len(board[0])):
-            values += (colored(board[i][j][0], 'white') if board[i][j][1] == 'B' else colored(board[i][j][0], 'grey')) + ' '
+            values += (colored(board[i][j][0], 'magenta') if board[i][j][1] == 'B' else colored(board[i][j][0], 'white')) + ' '
         print(line + values + board_delimiter + ' ' + letters[i].upper() + ' |')
     print('|   ' + board_delimiter * ((2*len(board[0]))+3) + '   | {}'.format('Killed by W:' + ' '.join(black_deaths) if len(black_deaths) else ''))
     print('|     ' + ' '.join([str(i+1) for i in range(len(board[0]))]) + '     |')
-    print(" ------------------------- ")
+    print(' ' + ('-' * (2 * len(board[0]) + 9)))
 
 
 def print_legend():
-    print(colored('--- Legend ---'), 'blue')
+    print(colored('--- Legend ---', 'blue'))
     for p_letter, p_name in pieces.items():
         print(colored(p_letter + ': ' + p_name, 'blue'))
+
+
+def print_commands():
+    print('Write \'save\' to store the current game status and exit the game.')
+    print('Write \'exit\' to exit the game without saving it.')
+
+
+def start_print():
+    print("##############\n# CHESS GAME #\n##############")
+    print_commands()
+    print_legend()
