@@ -21,8 +21,11 @@ def print_table(board):
         values = ''
         for j in range(len(board[0])):
             value = board[i][j]
-            if len(value) == 3:
-                values += colored(board[i][j][0], 'red')
+            if len(value) >= 3:
+                if board[i][j][2] == 'c':
+                    values += colored(board[i][j][0], 'yellow')
+                elif board[i][j][2] == 'k':
+                    values += colored(board[i][j][0], 'red')
                 board[i][j] = value[0:2]
             elif board[i][j][1] == 'B':
                 values += colored(board[i][j][0], 'magenta')

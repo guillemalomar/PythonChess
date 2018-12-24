@@ -1,5 +1,5 @@
-from src.obtain_values.obtain_values import obtain_pos_value, obtain_v_coord
-from src.conf.settings import messages
+from src.obtain_values.obtain_values import obtain_pos_value, obtain_v_coord, assign_pos_value
+from src.conf.settings import messages, letters
 from src.conf.movements import movements
 
 
@@ -12,7 +12,10 @@ def check_in_board(position, board):
 
 def check_correct_move(position, position2, board):
     piece_type = obtain_pos_value(position, board)[0].lower()
-    piece_movements = movements[piece_type]
+    try:
+        piece_movements = movements[piece_type]
+    except KeyError:
+        return 0
     if piece_type != 'p':
         for piece_movement in piece_movements:
             if piece_type == 'h' or piece_type == 'k':
@@ -59,3 +62,27 @@ def check_correct_move(position, position2, board):
                     return 1
     print(messages['WRONG_MOVEMENT'])
     return 0
+
+
+def check_if_check(board, turn):
+    king = find_king(board, obtain_other_turn(turn))
+    for i in range(len(board)):
+        for j in range(len(board[0])):
+            if board[i][j][1].upper() == turn.upper():
+                position = letters[i].upper() + str(j+1)
+                if check_correct_move(position, king, board):
+                    assign_pos_value(position, obtain_pos_value(position, board)[0:2] + 'c', board)
+
+
+def find_king(board, turn):
+    for i in range(len(board)):
+        for j in range(len(board[0])):
+            if board[i][j] == 'K' + turn.upper():
+                return letters[i].upper() + str(j+1)
+
+
+def obtain_other_turn(turn):
+    if turn.lower() == 'w':
+        return 'b'
+    else:
+        return 'w'
