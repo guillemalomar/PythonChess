@@ -39,6 +39,9 @@ def check_correct_move(position, position2, board):
     else:
         if obtain_pos_value(position2, board) != '  ':
             piece_movements = movements['p_attack']
+        if (int(obtain_v_coord(position[0])) == len(board) - 2 and obtain_pos_value(position, board)[1] == 'W') or \
+           (int(obtain_v_coord(position[0])) == 1 and obtain_pos_value(position, board)[1] == 'B'):
+            piece_movements = movements['p_first_move']
         for piece_movement in piece_movements:
             if obtain_pos_value(position, board)[1] == 'W':
                 if int(obtain_v_coord(position2[0])) == int(obtain_v_coord(position[0])) - piece_movement[0]\
