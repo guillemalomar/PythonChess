@@ -15,6 +15,7 @@ messages = {'CHOOSE_PIECE': "Turn for {} player, choose piece to move (V H):",
             'OWN_ATTACK': "We cannot attack our own piece",
             'WRONG_PIECE': "You must choose one of your pieces",
             'WRONG_MOVEMENT': 'Wrong movement',
+            'WRONG_POSITION': 'Wrong position',
             'PLAYER_WIN': 'Player {} wins!'}
 
 letters = 'abcdefghijklmnopqrstuvwxyz'
