@@ -1,6 +1,6 @@
 import os
 import sys
-from src.obtain_values.obtain_values import obtain_pos_value
+from src.obtain_values.obtain_values import obtain_pos_value, assign_pos_value
 from src.conf.settings import messages, letters
 from src.checks.checks import check_in_board
 
@@ -72,3 +72,20 @@ def choose_move(board, def_pos=False):
             return 0
     else:
         return position2
+
+
+def promote(position, value, board):
+    correct_piece = False
+    piece = ''
+    while not correct_piece:
+        print(messages['PROMOTE_PAWN'])
+        piece = str(sys.stdin.readline()).replace('\n', '')
+        correct_piece, piece = check_promotable(piece)
+    assign_pos_value(position, piece + value[1], board)
+
+
+def check_promotable(piece):
+    promotions = {1: 'Q', 2: 'H', 3: 'T', 4: 'B'}
+    if int(piece) not in range(1, 5):
+        return False, piece
+    return True, promotions[int(piece)]
