@@ -4,6 +4,7 @@ from src.conf.settings import messages
 from src.moves.deaths import add_death
 from src.input_output.outputs import print_table
 from src.input_output.inputs import promote
+from src.checks.checks import check_if_check
 
 
 def move_piece(position, position2, board):
@@ -31,5 +32,7 @@ def move_piece(position, position2, board):
        ((position2[0].lower() == 'a' and curr_pos_val[1].lower() == 'w') or
         (obtain_v_coord(position2[0].lower()) == len(board)-1 and curr_pos_val[1].lower() == 'b')):
         promote(position2, curr_pos_val, board)
+
+    check_if_check(board, curr_pos_val[1])
 
     return board
