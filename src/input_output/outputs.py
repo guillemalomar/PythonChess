@@ -20,7 +20,17 @@ def print_table(board):
         line = '| ' + letters[i].upper() + ' ' + board_delimiter + ' '
         values = ''
         for j in range(len(board[0])):
-            values += (colored(board[i][j][0], 'magenta') if board[i][j][1] == 'B' else colored(board[i][j][0], 'white')) + ' '
+            value = board[i][j]
+            if len(value) == 3:
+                values += colored(board[i][j][0], 'red')
+                board[i][j] = value[0:2]
+            elif board[i][j][1] == 'B':
+                values += colored(board[i][j][0], 'magenta')
+            elif board[i][j][1] == 'W':
+                values += colored(board[i][j][0], 'white')
+            else:
+                values += ' '
+            values += ' '
         print(line + values + board_delimiter + ' ' + letters[i].upper() + ' |')
     print('|   ' + board_delimiter * ((2*len(board[0]))+3) + '   | {}'.format('Killed by W:' + ' '.join(black_deaths) if len(black_deaths) else ''))
     print('|     ' + ' '.join([str(i+1) for i in range(len(board[0]))]) + '     |')
