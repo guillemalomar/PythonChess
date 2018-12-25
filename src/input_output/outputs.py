@@ -1,6 +1,7 @@
 from src.conf.settings import board_delimiter, letters, pieces
 from termcolor import colored
 from src.moves.deaths import black_deaths, white_deaths
+from src.input_output.timer import black_timer, white_timer
 
 
 def clean_screen():
@@ -38,6 +39,7 @@ def print_table(board):
     print('|   ' + board_delimiter * ((2*len(board[0]))+3) + '   | {}'.format('Killed by W:' + ' '.join(black_deaths) if len(black_deaths) else ''))
     print('|     ' + ' '.join([str(i+1) for i in range(len(board[0]))]) + '     |')
     print(' ' + ('-' * (2 * len(board[0]) + 9)))
+    print_timers()
 
 
 def print_legend():
@@ -49,6 +51,11 @@ def print_legend():
 def print_commands():
     print('Write \'save\' to store the current game status and exit the game.')
     print('Write \'exit\' to exit the game without saving it.')
+
+
+def print_timers():
+    print("Time spent by W: " + white_timer.format_time())
+    print("Time spent by B: " + black_timer.format_time())
 
 
 def start_print():

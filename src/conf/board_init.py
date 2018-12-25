@@ -2,7 +2,8 @@
 def board_init(coordinates_x, coordinates_y):
 
     board = [['  ' for _ in range(coordinates_x)] for _ in range(coordinates_y)]
-    
+
+    #     V  H
     board[0][0] = 'TB'
     board[0][1] = 'HB'
     board[0][2] = 'BB'
