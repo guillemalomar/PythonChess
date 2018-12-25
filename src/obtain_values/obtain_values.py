@@ -19,3 +19,5 @@ def obtain_v_coord(letter_coordinate):
         return letters.index(letter_coordinate.lower())
     except ValueError:
         return False
+    except AttributeError:
+        return False

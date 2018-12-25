@@ -38,7 +38,7 @@ class MovesTests(unittest.TestCase):
     def test_movepiece(self):
         board = move_piece('b2', 'b3', self.board)
         self.assertEqual(obtain_pos_value('b2', board), '  ')
-        self.assertEqual(obtain_pos_value('b3', board), 'PB')
+        self.assertEqual(obtain_pos_value('b3', board), 'PBk')
 
 
 class InputOutputTests(unittest.TestCase):
