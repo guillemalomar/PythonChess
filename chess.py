@@ -179,112 +179,83 @@ class GameExecution(tk.Frame):
         frame = Frame(self, relief=RAISED, borderwidth=1)
         frame.pack(fill=BOTH, expand=True)
 
-        self.pack(fill=BOTH, expand=True)
+        # self.pack(fill=BOTH, expand=True)
 
+        button_style = Style()
+        button_style.configure("TButton", background='white')
         close_button = Button(self, text="Quit", command=self.quit)
         close_button.pack(side=RIGHT, padx=5, pady=5)
 
     def show_board(self, curr_board):
-        button_style = Style()
 
         for ind1, x in enumerate(curr_board):
             for ind2, y in enumerate(x):
-                if y.lower() == 'pw':
+                button_style = Style()
+                if (ind1 + ind2) % 2 == 1:
+                    button_style.configure("B.TLabel", background='black')
+                else:
+                    button_style.configure("W.TLabel", background='white')
+                if y.lower()[1] == 'w':
                     if (ind1 + ind2) % 2 == 1:
-                        button_style.configure("TButton", background='black', foreground='black')
-                        piece_button = Button(self, command=self.button_pressed(y.lower()), image=self.pwb)
+                        if y.lower()[0] == 'p':
+                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('pw'), image=self.pwb)
+                        elif y.lower()[0] == 'q':
+                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('qw'), image=self.qwb)
+                        elif y.lower()[0] == 'k':
+                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('kw'), image=self.kwb)
+                        elif y.lower()[0] == 'b':
+                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('bw'), image=self.bwb)
+                        elif y.lower()[0] == 't':
+                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('tw'), image=self.twb)
+                        else:
+                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('hw'), image=self.hwb)
                     else:
-                        button_style.configure("TButton", background='white', foreground='white')
-                        piece_button = Button(self, command=self.button_pressed(y.lower()), image=self.pww)
-                elif y.lower() == 'pb':
+                        if y.lower()[0] == 'p':
+                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('pw'), image=self.pww)
+                        elif y.lower()[0] == 'q':
+                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('qw'), image=self.qww)
+                        elif y.lower()[0] == 'k':
+                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('kw'), image=self.kww)
+                        elif y.lower()[0] == 'b':
+                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('bw'), image=self.bww)
+                        elif y.lower()[0] == 't':
+                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('tw'), image=self.tww)
+                        else:
+                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('hw'), image=self.hww)
+                elif y.lower()[1] == 'b':
                     if (ind1 + ind2) % 2 == 1:
-                        button_style.configure("TButton", background='black', foreground='black')
-                        piece_button = Button(self, command=print('pressed'), image=self.pbb)
+                        if y.lower()[0] == 'p':
+                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('pb'), image=self.pbb)
+                        elif y.lower()[0] == 'q':
+                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('qb'), image=self.qbb)
+                        elif y.lower()[0] == 'k':
+                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('kb'), image=self.kbb)
+                        elif y.lower()[0] == 'b':
+                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('bb'), image=self.bbb)
+                        elif y.lower()[0] == 't':
+                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('tb'), image=self.tbb)
+                        else:
+                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('hb'), image=self.hbb)
                     else:
-                        button_style.configure("TButton", background='white', foreground='white')
-                        piece_button = Button(self, command=print('pressed'), image=self.pbw)
-                elif y.lower() == 'qw':
-                    if (ind1 + ind2) % 2 == 1:
-                        button_style.configure("TButton", background='black', foreground='black')
-                        piece_button = Button(self, command=None, image=self.qwb)
-                    else:
-                        button_style.configure("TButton", background='white', foreground='white')
-                        piece_button = Button(self, command=None, image=self.qww)
-                elif y.lower() == 'qb':
-                    if (ind1 + ind2) % 2 == 1:
-                        button_style.configure("TButton", background='black', foreground='black')
-                        piece_button = Button(self, command=None, image=self.qbb)
-                    else:
-                        button_style.configure("TButton", background='white', foreground='white')
-                        piece_button = Button(self, command=None, image=self.qbw)
-                elif y.lower() == 'kw':
-                    if (ind1 + ind2) % 2 == 1:
-                        button_style.configure("TButton", background='black', foreground='black')
-                        piece_button = Button(self, command=None, image=self.kwb)
-                    else:
-                        button_style.configure("TButton", background='white', foreground='white')
-                        piece_button = Button(self, command=None, image=self.kww)
-                elif y.lower() == 'kb':
-                    if (ind1 + ind2) % 2 == 1:
-                        button_style.configure("TButton", background='black', foreground='black')
-                        piece_button = Button(self, command=None, image=self.kbb)
-                    else:
-                        button_style.configure("TButton", background='white', foreground='white')
-                        piece_button = Button(self, command=None, image=self.kbw)
-                elif y.lower() == 'bw':
-                    if (ind1 + ind2) % 2 == 1:
-                        button_style.configure("TButton", background='black', foreground='black')
-                        piece_button = Button(self, command=None, image=self.bwb)
-                    else:
-                        button_style.configure("TButton", background='white', foreground='white')
-                        piece_button = Button(self, command=None, image=self.bww)
-                elif y.lower() == 'bb':
-                    if (ind1 + ind2) % 2 == 1:
-                        button_style.configure("TButton", background='black', foreground='black')
-                        piece_button = Button(self, command=None, image=self.bbb)
-                    else:
-                        button_style.configure("TButton", background='white', foreground='white')
-                        piece_button = Button(self, command=None, image=self.bbw)
-                elif y.lower() == 'tw':
-                    if (ind1 + ind2) % 2 == 1:
-                        button_style.configure("TButton", background='black', foreground='black')
-                        piece_button = Button(self, command=None, image=self.twb)
-                    else:
-                        button_style.configure("TButton", background='white', foreground='white')
-                        piece_button = Button(self, command=None, image=self.tww)
-                elif y.lower() == 'tb':
-                    if (ind1 + ind2) % 2 == 1:
-                        button_style.configure("TButton", background='black', foreground='black')
-                        piece_button = Button(self, command=None, image=self.tbb)
-                    else:
-                        button_style.configure("TButton", background='white', foreground='white')
-                        piece_button = Button(self, command=None, image=self.tbw)
-                elif y.lower() == 'hw':
-                    if (ind1 + ind2) % 2 == 1:
-                        button_style.configure("TButton", background='black', foreground='black')
-                        piece_button = Button(self, command=None, image=self.hwb)
-                    else:
-                        button_style.configure("TButton", background='white', foreground='white')
-                        piece_button = Button(self, command=None, image=self.hww)
-                elif y.lower() == 'hb':
-                    if (ind1 + ind2) % 2 == 1:
-                        button_style.configure("TButton", background='black', foreground='black')
-                        piece_button = Button(self, command=None, image=self.hbb)
-                    else:
-                        button_style.configure("TButton", background='white', foreground='white')
-                        piece_button = Button(self, command=None, image=self.hbw)
+                        if y.lower()[0] == 'p':
+                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('pb'), image=self.pbw)
+                        elif y.lower()[0] == 'q':
+                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('qb'), image=self.qbw)
+                        elif y.lower()[0] == 'k':
+                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('kb'), image=self.kbw)
+                        elif y.lower()[0] == 'b':
+                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('bb'), image=self.bbw)
+                        elif y.lower()[0] == 't':
+                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('tb'), image=self.tbw)
+                        else:
+                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('hb'), image=self.hbw)
                 else:
                     if (ind1 + ind2) % 2 == 1:
-                        button_style.configure("TButton", background='black', foreground='black')
-                        piece_button = Button(self, command=None, image=self.b)
-                        self.pack(fill=BOTH, expand=True)
+                        piece_button = Button(self, style="B.TLabel", command=None, image=self.b)
                     else:
-                        button_style.configure("TButton", background='white', foreground='white')
-                        piece_button = Button(self, command=None, image=self.w)
-                        self.pack(fill=BOTH, expand=True)
+                        piece_button = Button(self, style="W.TLabel", command=None, image=self.w)
                 piece_button.place(x=(80*ind2) + 25, y=(80*ind1)+25, width=74, height=74)
-
-        self.pack(fill=BOTH, expand=True)
+        self.pack()
 
     def button_pressed(self, button_name):
         print(button_name)
