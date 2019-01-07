@@ -2,9 +2,9 @@ import argparse
 import logging
 from tkinter import Tk
 from src.conf.settings import size_x, size_y
-from src.board.board import Board
+from src.board import Board
 from src.conf.logger import setup_logger
-from src.game_execution.game_execution import GameExecution
+from src.game_execution import GameExecution
 
 
 formatter = logging.Formatter('%(message)s')

@@ -1,12 +1,10 @@
 import logging
 import sys
-from src.game_execution.deaths import add_death
 from tkinter.ttk import Button, Style
 from src.conf.settings import board_delimiter, letters, messages
 from src.conf.movements import movements
-from src.game_execution.deaths import black_deaths, white_deaths
 from termcolor import colored
-from src.timer.timer import black_timer, white_timer
+from src.timer import black_timer, white_timer
 
 
 class Board:
@@ -36,6 +34,9 @@ class Board:
             self.positions[1][i] = 'PB'
             self.positions[coordinates_y-2][i] = 'PW'
 
+        self.black_deaths = []
+        self.white_deaths = []
+
     def obtain_pos_value(self, position):
         try:
             position = self.positions[int(position[0])][int(position[1])]
@@ -58,14 +59,14 @@ class Board:
                 if (ind1 + ind2) % 2 == 1:
                     color = 'B'
                     try:
-                        param = eval('app.' + y.lower() + 'b')
-                    except AttributeError:
+                        param = eval('app.values["' + y.lower() + 'b"]')
+                    except KeyError:
                         pass
                 else:
                     color = 'W'
                     try:
-                        param = eval('app.' + y.lower() + 'w')
-                    except AttributeError:
+                        param = eval('app.values["' + y.lower() + 'w"]')
+                    except KeyError:
                         pass
                 if y.lower() != '  ':
                     piece_button = Button(app,
@@ -85,7 +86,7 @@ class Board:
         print(' ' + ('-' * (2 * len(self.positions[0]) + 9)))
         print('|     ' + ' '.join([str(i + 1) for i in range(len(self.positions[0]))]) + '     |')
         print('|   ' + board_delimiter * ((2 * len(self.positions[0])) + 3) + '   | {}'.format(
-            'Killed by B:' + ' '.join(white_deaths) if len(white_deaths) else ''))
+            'Killed by B:' + ' '.join(self.white_deaths) if len(self.white_deaths) else ''))
         for i in range(len(self.positions)):
             line = '| ' + letters[i].upper() + ' ' + board_delimiter + ' '
             values = ''
@@ -106,7 +107,7 @@ class Board:
                 values += ' '
             print(line + values + board_delimiter + ' ' + letters[i].upper() + ' |')
         print('|   ' + board_delimiter * ((2 * len(self.positions[0])) + 3) + '   | {}'.format(
-            'Killed by W:' + ' '.join(black_deaths) if len(black_deaths) else ''))
+            'Killed by W:' + ' '.join(self.black_deaths) if len(self.black_deaths) else ''))
         print('|     ' + ' '.join([str(i + 1) for i in range(len(self.positions[0]))]) + '     |')
         print(' ' + ('-' * (2 * len(self.positions[0]) + 9)))
         white_timer.print_timer()
@@ -122,7 +123,7 @@ class Board:
         self.assign_pos_value(position, '  ')
 
         if targ_pos_val != '  ':
-            add_death(targ_pos_val)
+            self.add_death(targ_pos_val)
             self.assign_pos_value(position2, ''.join(curr_pos_val) + 'k')
 
         logging.getLogger('log1').warning('{} {}'.format(position, position2))
@@ -251,3 +252,9 @@ class Board:
             return 'b'
         else:
             return 'w'
+
+    def add_death(self, piece):
+        if piece[1] == 'B':
+            self.black_deaths.append(piece[0])
+        else:
+            self.white_deaths.append(piece[0])

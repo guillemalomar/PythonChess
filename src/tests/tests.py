@@ -1,5 +1,5 @@
 import unittest
-from src.board.board import Board
+from src.board import Board
 
 
 class ObtainValuesTests(unittest.TestCase):
