@@ -2,10 +2,11 @@ import time
 
 
 class Timer:
-    def __init__(self):
+    def __init__(self, name):
         self.start = 0
         self.current = 0
         self.total = 0.0
+        self.name = name
 
     def start_time(self):
         self.start = time.time()
@@ -35,6 +36,9 @@ class Timer:
 
         return hours + ':' + minutes + ':' + seconds + ',' + milliseconds
 
+    def print_timer(self):
+        print("Time spent by " + self.name + ": " + self.format_time())
 
-black_timer = Timer()
-white_timer = Timer()
+
+black_timer = Timer('B')
+white_timer = Timer('W')
