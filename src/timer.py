@@ -33,6 +33,8 @@ class Timer:
             minutes = '0' + minutes
         if len(seconds) < 2:
             seconds = '0' + seconds
+        if len(milliseconds) > 2:
+            milliseconds = milliseconds[0:2]
 
         return hours + ':' + minutes + ':' + seconds + ',' + milliseconds
 
