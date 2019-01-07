@@ -3,18 +3,23 @@ import itertools
 import logging
 import tkinter as tk
 from PIL import Image, ImageTk
-from tkinter import Tk, BOTH, RIGHT, RAISED, Text, SUNKEN
-from tkinter.ttk import Frame, Button, Style, Label
+from tkinter import Tk, BOTH, RIGHT, RAISED, Text
+from tkinter.ttk import Frame, Button, Style
 from src.checks.checks import check_correct_move
 from src.conf.settings import size_x, size_y
 from src.conf.board_init import board_init
 from src.conf.logger import setup_logger
 from src.input_output.inputs import choose_move, choose_piece
-from src.input_output.outputs import print_table, clean_screen, start_print
+from src.input_output.outputs import print_table
 from src.moves.moves import move_piece
+from src.obtain_values.obtain_values import obtain_pos_value
 
-
+phase_iter = itertools.cycle('PT')
 turn_iter = itertools.cycle('WB')
+global piece_to_move
+piece_to_move = ''
+global place_to_move
+place_to_move = ''
 
 formatter = logging.Formatter('%(message)s')
 current_logger = setup_logger('log1', "logs/current.log", with_formatter=formatter)
@@ -63,13 +68,24 @@ def main_function(coord_x_or, coord_y_or, turn, cont_file=''):
 
 class GameExecution(tk.Frame):
 
-    def __init__(self):
+    def __init__(self, turn, phase):
         super().__init__()
+        self.turn = turn
+        self.phase = phase
         self.config(background='black')
 
         self.style = Style()
 
         self.init_ui()
+        '''
+        for v1 in 'phbqkt':
+            for v2 in 'bw':
+                for v3 in 'bw':
+                    val = eval("Image.open('src/images/" + v1 + v2 + v3 + ".jpg')")
+                    self.label = tk.Label(image=val)
+                    eval("self." + v1 + v2 + v3 + " = ImageTk.PhotoImage(self.label)")
+                    eval("self.label." + v1 + v2 + v3 + " = self." + v1 + v2 + v3)
+        '''
         pbw = Image.open('src/images/pbw.jpg')
         pww = Image.open('src/images/pww.jpg')
         hww = Image.open('src/images/hww.jpg')
@@ -94,8 +110,6 @@ class GameExecution(tk.Frame):
         kbb = Image.open('src/images/kbb.jpg')
         twb = Image.open('src/images/twb.jpg')
         tbb = Image.open('src/images/tbb.jpg')
-        b = Image.open('src/images/black.jpg')
-        w = Image.open('src/images/white.jpg')
         self.hww = ImageTk.PhotoImage(hww)
         self.pww = ImageTk.PhotoImage(pww)
         self.pbw = ImageTk.PhotoImage(pbw)
@@ -120,8 +134,6 @@ class GameExecution(tk.Frame):
         self.kbb = ImageTk.PhotoImage(kbb)
         self.twb = ImageTk.PhotoImage(twb)
         self.tbb = ImageTk.PhotoImage(tbb)
-        self.b = ImageTk.PhotoImage(b)
-        self.w = ImageTk.PhotoImage(w)
         self.label = tk.Label(image=self.pbb)
         self.label.pbw = self.pbw
         self.label.pww = self.pww
@@ -147,8 +159,6 @@ class GameExecution(tk.Frame):
         self.label.kbb = self.kbb
         self.label.twb = self.twb
         self.label.tbb = self.tbb
-        self.label.b = self.b
-        self.label.w = self.w
         self.pack()
 
     def init_ui(self):
@@ -179,8 +189,6 @@ class GameExecution(tk.Frame):
         frame = Frame(self, relief=RAISED, borderwidth=1)
         frame.pack(fill=BOTH, expand=True)
 
-        # self.pack(fill=BOTH, expand=True)
-
         button_style = Style()
         button_style.configure("TButton", background='white')
         close_button = Button(self, text="Quit", command=self.quit)
@@ -188,77 +196,79 @@ class GameExecution(tk.Frame):
 
     def show_board(self, curr_board):
 
+        button_style = Style()
+        button_style.configure("B.TLabel", background='black')
+        button_style.configure("W.TLabel", background='white')
+
         for ind1, x in enumerate(curr_board):
             for ind2, y in enumerate(x):
-                button_style = Style()
                 if (ind1 + ind2) % 2 == 1:
-                    button_style.configure("B.TLabel", background='black')
+                    color = 'B'
+                    try:
+                        param = eval('self.' + y.lower() + 'b')
+                    except:
+                        pass
                 else:
-                    button_style.configure("W.TLabel", background='white')
-                if y.lower()[1] == 'w':
-                    if (ind1 + ind2) % 2 == 1:
-                        if y.lower()[0] == 'p':
-                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('pw'), image=self.pwb)
-                        elif y.lower()[0] == 'q':
-                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('qw'), image=self.qwb)
-                        elif y.lower()[0] == 'k':
-                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('kw'), image=self.kwb)
-                        elif y.lower()[0] == 'b':
-                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('bw'), image=self.bwb)
-                        elif y.lower()[0] == 't':
-                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('tw'), image=self.twb)
-                        else:
-                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('hw'), image=self.hwb)
-                    else:
-                        if y.lower()[0] == 'p':
-                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('pw'), image=self.pww)
-                        elif y.lower()[0] == 'q':
-                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('qw'), image=self.qww)
-                        elif y.lower()[0] == 'k':
-                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('kw'), image=self.kww)
-                        elif y.lower()[0] == 'b':
-                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('bw'), image=self.bww)
-                        elif y.lower()[0] == 't':
-                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('tw'), image=self.tww)
-                        else:
-                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('hw'), image=self.hww)
-                elif y.lower()[1] == 'b':
-                    if (ind1 + ind2) % 2 == 1:
-                        if y.lower()[0] == 'p':
-                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('pb'), image=self.pbb)
-                        elif y.lower()[0] == 'q':
-                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('qb'), image=self.qbb)
-                        elif y.lower()[0] == 'k':
-                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('kb'), image=self.kbb)
-                        elif y.lower()[0] == 'b':
-                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('bb'), image=self.bbb)
-                        elif y.lower()[0] == 't':
-                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('tb'), image=self.tbb)
-                        else:
-                            piece_button = Button(self, style="B.TLabel", command=lambda: self.button_pressed('hb'), image=self.hbb)
-                    else:
-                        if y.lower()[0] == 'p':
-                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('pb'), image=self.pbw)
-                        elif y.lower()[0] == 'q':
-                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('qb'), image=self.qbw)
-                        elif y.lower()[0] == 'k':
-                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('kb'), image=self.kbw)
-                        elif y.lower()[0] == 'b':
-                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('bb'), image=self.bbw)
-                        elif y.lower()[0] == 't':
-                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('tb'), image=self.tbw)
-                        else:
-                            piece_button = Button(self, style="W.TLabel", command=lambda: self.button_pressed('hb'), image=self.hbw)
+                    color = 'W'
+                    try:
+                        param = eval('self.' + y.lower() + 'w')
+                    except:
+                        pass
+                if y.lower() != '  ':
+                    piece_button = Button(self,
+                                          style=color+".TLabel",
+                                          command=lambda v=(ind1, ind2): self.button_pressed(v, curr_board),
+                                          image=param)
                 else:
-                    if (ind1 + ind2) % 2 == 1:
-                        piece_button = Button(self, style="B.TLabel", command=None, image=self.b)
-                    else:
-                        piece_button = Button(self, style="W.TLabel", command=None, image=self.w)
+                    piece_button = Button(self,
+                                          style=color+".TLabel",
+                                          command=lambda v=(ind1, ind2): self.button_pressed(v, curr_board))
+
                 piece_button.place(x=(80*ind2) + 25, y=(80*ind1)+25, width=74, height=74)
         self.pack()
 
-    def button_pressed(self, button_name):
-        print(button_name)
+    def button_pressed(self, position, board):
+        print("TURN:" + self.turn)
+        print("PHASE:" + self.phase)
+        global place_to_move
+        global piece_to_move
+        pos_value = obtain_pos_value(position, board)
+        if self.phase == 'P' and pos_value[1] == self.turn:
+            piece_to_move = position
+            print('selected piece:' + str(piece_to_move))
+            self.phase = next(phase_iter)
+        elif self.phase == 'T':
+            place_to_move = position
+            print('moving to:' + str(place_to_move))
+            if check_correct_move(piece_to_move, place_to_move, board, True):
+                board = move_piece(piece_to_move, place_to_move, board)
+                self.turn = next(turn_iter)
+            self.phase = next(phase_iter)
+        print_table(board)
+        self.show_board(board)
+
+
+        '''
+        position = 0
+        correct_move = 0
+        target = 0
+        while not correct_move:
+            while not position:
+                if turn_move:
+                    position = choose_piece(turn, board, turn_move.split()[0])
+                else:
+                    position = choose_piece(turn, board)
+
+            if turn_move:
+                target = choose_move(board, turn_move.split()[1])
+            else:
+                target = choose_move(board)
+            if target:
+                correct_move = check_correct_move(position, target, board)
+            else:
+                position = 0
+        board = move_piece(position, target, board)
+        '''
 
 
 if __name__ == "__main__":
@@ -280,9 +290,10 @@ if __name__ == "__main__":
     size_y = args.size_y
 
     initial_turn = next(turn_iter)
+    initial_phase = next(phase_iter)
 
     root = Tk()
-    app = GameExecution()
+    app = GameExecution(turn=initial_turn, phase=initial_phase)
     board = board_init(size_x, size_y)
     app.show_board(board)
     root.mainloop()

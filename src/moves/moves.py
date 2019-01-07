@@ -1,5 +1,5 @@
 import logging
-from src.obtain_values.obtain_values import obtain_pos_value, assign_pos_value, obtain_v_coord
+from src.obtain_values.obtain_values import obtain_pos_value, assign_pos_value
 from src.conf.settings import messages
 from src.moves.deaths import add_death
 from src.input_output.outputs import print_table
@@ -30,10 +30,9 @@ def move_piece(position, position2, board):
         print_table(board)
         print(messages['PLAYER_WIN'].format(curr_pos_val[1]))
         exit()
-
     if curr_pos_val[0].lower() == 'p' and \
-       ((position2[0].lower() == 'a' and curr_pos_val[1].lower() == 'w') or
-        (obtain_v_coord(position2[0].lower()) == len(board)-1 and curr_pos_val[1].lower() == 'b')):
+       ((position2[0] == 0 and curr_pos_val[1].lower() == 'w') or
+        (position2[0] == len(board)-1 and curr_pos_val[1].lower() == 'b')):
         promote(position2, curr_pos_val, board)
 
     check_if_check(board, curr_pos_val[1])

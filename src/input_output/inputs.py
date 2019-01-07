@@ -2,7 +2,6 @@ import os
 import sys
 from src.obtain_values.obtain_values import obtain_pos_value, assign_pos_value
 from src.conf.settings import messages, letters
-from src.checks.checks import check_in_board
 
 
 def format_input(input_str):
@@ -43,20 +42,15 @@ def choose_piece(turn, board, def_pos=False):
     position = format_input(position)
     if not position:
         return 0
-    in_board = check_in_board(position, board)
     pos = obtain_pos_value(position, board)
-    if in_board and pos and pos[1] == turn:
+    if pos and pos[1] == turn:
         return position
     else:
-        if not in_board:
-            print(messages['WRONG_POSITION'])
-            return 0
-        if not pos or pos[1] != turn:
-            print(messages['WRONG_PIECE'])
-            return 0
+        print(messages['WRONG_PIECE'])
+        return 0
 
 
-def choose_move(board, def_pos=False):
+def choose_move(def_pos=False):
     print(messages['CHOOSE_MOVE'])
     if not def_pos:
         position2 = str(sys.stdin.readline()).replace('\n', '')
@@ -65,13 +59,7 @@ def choose_move(board, def_pos=False):
     position2 = format_input(position2)
     if not position2:
         return 0
-    in_board = check_in_board(position2, board)
-    if not in_board:
-        if not in_board:
-            print(messages['WRONG_MOVEMENT'])
-            return 0
-    else:
-        return position2
+    return position2
 
 
 def promote(position, value, board):
