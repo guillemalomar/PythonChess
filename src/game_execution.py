@@ -74,7 +74,7 @@ class GameExecution(tk.Frame):
 
         self.my_text = Text(self, width=80, height=1)
         self.my_text.insert('1.0', turns[self.turn] + ' - ' + phases[self.phase])
-        self.my_text.pack(side=LEFT)
+        self.my_text.pack(side=LEFT, padx=5)
 
         button_style = Style()
         button_style.configure("TButton", background='white')
