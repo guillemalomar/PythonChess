@@ -12,6 +12,7 @@ pieces = {'K': 'King',
 
 messages = {'CHOOSE_PIECE': "Turn for {} player, choose piece to move (V H):",
             'CHOOSE_MOVE': "Choose position to move (V H):",
+            'MOVE_DONE': "Player {} has moved {} from {} to {}",
             'OWN_ATTACK': "We cannot attack our own piece",
             'WRONG_PIECE': "You must choose one of your pieces",
             'WRONG_MOVEMENT': 'Wrong movement',

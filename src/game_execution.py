@@ -1,7 +1,7 @@
 import itertools
 import tkinter as tk
 from PIL import Image, ImageTk
-from tkinter import BOTH, RIGHT, LEFT, RAISED, Text
+from tkinter import BOTH, CENTER, RIGHT, LEFT, RAISED, Text
 from tkinter.ttk import Frame, Button, Style
 from src.timer import black_timer, white_timer
 
@@ -15,8 +15,6 @@ turns = {
     'W': 'White plays',
     'B': 'Black plays'
 }
-global piece_to_move
-global place_to_move
 
 
 class GameExecution(tk.Frame):
@@ -42,14 +40,23 @@ class GameExecution(tk.Frame):
                     self.label.values = dict()
                     self.label.values[v1 + v2 + v3] = self.values[v1 + v2 + v3]
 
+        self.piece_to_move = ''
+        self.place_to_move = ''
+
     def init_ui(self):
-        self.master.title("Chess")
+        """
+        This method initializes the GUI.
+        """
+        self.master.title("Python Chess")
         self.pack(fill=BOTH, expand=1)
         self.center_window()
         self.message_board()
         self.close_button()
 
     def center_window(self):
+        """
+        This method prepares the board interface.
+        """
         w = 665
         h = 705
 
@@ -69,6 +76,9 @@ class GameExecution(tk.Frame):
         my_text.pack()
 
     def message_board(self):
+        """
+        This method prepares the message interface.
+        """
         self.frame = Frame(self, relief=RAISED, borderwidth=1)
         self.frame.pack(fill=BOTH, expand=True)
 
@@ -77,25 +87,80 @@ class GameExecution(tk.Frame):
         self.my_text.pack(side=LEFT, padx=5)
 
     def close_button(self):
+        """
+        This method prepares the close button.
+        :return:
+        """
         button_style = Style()
         button_style.configure("TButton", background='white')
         close_button = Button(self, text="Quit", command=self.quit)
         close_button.pack(side=RIGHT, padx=5, pady=5)
 
-    def button_pressed(self, position, board):
-        global place_to_move
-        global piece_to_move
-        pos_value = board.obtain_pos_value(position)
+    def pressed(self, position, board):
+        """
+        This method is called every time a board button is pressed. It
+        checks the current turn and phase, to check if the pressed button
+        belongs to a possible situation, and acts consequently.
+        :param position: (tuple) the position of the pressed button.
+        :param board: (Board) the current game board.
+        """
+        pos_value = board.get_pos_val(position)
         if self.phase == 'P' and pos_value[1] == self.turn:
-            piece_to_move = position
+            self.piece_to_move = position
             self.phase = next(phase_iter)
         elif self.phase == 'T':
-            place_to_move = position
-            if board.check_correct_move(piece_to_move, place_to_move, True):
-                board.move_piece(piece_to_move, place_to_move)
+            self.place_to_move = position
+            if board.check_correct_move(self.piece_to_move, self.place_to_move, True):
+                board.move_piece(self.piece_to_move, self.place_to_move)
                 self.turn = next(turn_iter)
             self.phase = next(phase_iter)
         self.my_text.insert('1.0', turns[self.turn] + ' - ' + phases[self.phase] + '    White:' + white_timer.format_time() + ' Black:' + black_timer.format_time() + '\n')
         self.my_text.pack(side=LEFT)
         board.print_board_in_terminal()
-        board.show_board(self)
+        self.show_board(board)
+
+    def show_board(self, board):
+        """
+        This method creates all the buttons needed to represent a board in
+        the current game instance.
+        :param board: (GameExecution) The current board.
+        """
+        button_style = Style()
+        button_style.configure("B.TLabel", background='black')
+        button_style.configure("W.TLabel", background='white')
+        button_style.configure("Y.TLabel", background='yellow')
+        button_style.configure("R.TLabel", background='red')
+        param = ''
+        for ind1, x in enumerate(board.squares):
+            for ind2, y in enumerate(x):
+                if (ind1 + ind2) % 2 == 1:
+                    color = 'B'
+                    try:
+                        param = eval('self.values["' + y.lower()[0:2] + 'b"]')
+                    except KeyError:
+                        pass
+                else:
+                    color = 'W'
+                    try:
+                        param = eval('self.values["' + y.lower()[0:2] + 'w"]')
+                    except KeyError:
+                        pass
+                if y[2] == 'k' or y[3] == 'c':
+                    if y[2] == 'k':
+                        color = 'R'
+                    else:
+                        color = 'Y'
+                    board.put_pos_val((ind1, ind2), board.get_pos_val((ind1, ind2))[0:2] + '  ')
+                if y.lower() != '    ':
+                    piece_button = Button(self,
+                                          style=color+".TLabel",
+                                          command=lambda v=(ind1, ind2): self.pressed(v, board),
+                                          image=param,
+                                          compound=CENTER)
+                else:
+                    piece_button = Button(self,
+                                          style=color+".TLabel",
+                                          command=lambda v=(ind1, ind2): self.pressed(v, board))
+
+                piece_button.place(x=(80*ind2) + 25, y=(80*ind1)+25, width=74, height=74)
+        self.pack()
