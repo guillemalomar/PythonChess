@@ -1,7 +1,5 @@
 import logging
 import sys
-from tkinter import CENTER
-from tkinter.ttk import Button, Style
 from src.conf.settings import board_delimiter, letters, messages
 from src.conf.movements import movements
 from termcolor import colored
@@ -10,147 +8,133 @@ from src.timer import black_timer, white_timer
 
 class Board:
     def __init__(self, coordinates_x, coordinates_y):
-        self.positions = [['    ' for _ in range(coordinates_x)] for _ in range(coordinates_y)]
+        """
+        This method initializes a board, with a size specified in its parameters.
+        It also creates the lists to store the killed pieces for each player.
+        :param coordinates_x: (int) desired width of the board.
+        :param coordinates_y: (int) desired depth of the board.
+        """
+        self.squares = [['    ' for _ in range(coordinates_x)] for _ in range(coordinates_y)]
 
-        #              V  H
-        self.positions[0][0] = 'TB  '
-        self.positions[0][1] = 'HB  '
-        self.positions[0][2] = 'BB  '
-        self.positions[0][3] = 'QB  '
-        self.positions[0][4] = 'KB  '
-        self.positions[0][5] = 'BB  '
-        self.positions[0][6] = 'HB  '
-        self.positions[0][7] = 'TB  '
+        #            V  H
+        self.squares[0][0] = 'TB  '
+        self.squares[0][1] = 'HB  '
+        self.squares[0][2] = 'BB  '
+        self.squares[0][3] = 'QB  '
+        self.squares[0][4] = 'KB  '
+        self.squares[0][5] = 'BB  '
+        self.squares[0][6] = 'HB  '
+        self.squares[0][7] = 'TB  '
 
-        self.positions[coordinates_y-1][0] = 'TW  '
-        self.positions[coordinates_y-1][1] = 'HW  '
-        self.positions[coordinates_y-1][2] = 'BW  '
-        self.positions[coordinates_y-1][3] = 'QW  '
-        self.positions[coordinates_y-1][4] = 'KW  '
-        self.positions[coordinates_y-1][5] = 'BW  '
-        self.positions[coordinates_y-1][6] = 'HW  '
-        self.positions[coordinates_y-1][7] = 'TW  '
+        self.squares[coordinates_y - 1][0] = 'TW  '
+        self.squares[coordinates_y - 1][1] = 'HW  '
+        self.squares[coordinates_y - 1][2] = 'BW  '
+        self.squares[coordinates_y - 1][3] = 'QW  '
+        self.squares[coordinates_y - 1][4] = 'KW  '
+        self.squares[coordinates_y - 1][5] = 'BW  '
+        self.squares[coordinates_y - 1][6] = 'HW  '
+        self.squares[coordinates_y - 1][7] = 'TW  '
 
         for i in range(coordinates_x):
-            self.positions[1][i] = 'PB  '
-            self.positions[coordinates_y-2][i] = 'PW  '
+            self.squares[1][i] = 'PB  '
+            self.squares[coordinates_y - 2][i] = 'PW  '
 
         self.black_deaths = []
         self.white_deaths = []
 
-    def obtain_pos_value(self, position):
+    def get_pos_val(self, pos):
+        """
+        Given a position, this method returns the piece that can be found in
+        that position (or empty). If the coordinates do not exist in the
+        board, it returns a False.
+        :param pos: (tuple) Coordinates x and j of the desired position.
+        :return: (str) The found value if it exists, otherwise a False.
+        """
         try:
-            position = self.positions[int(position[0])][int(position[1])]
-            return position
+            return self.squares[int(pos[0])][int(pos[1])]
         except IndexError:
             return False
 
-    def assign_pos_value(self, position, value):
-        self.positions[int(position[0])][int(position[1])] = value
-
-    def show_board(self, app):
-
-        button_style = Style()
-        button_style.configure("B.TLabel", background='black')
-        button_style.configure("W.TLabel", background='white')
-        button_style.configure("Y.TLabel", background='yellow')
-        button_style.configure("R.TLabel", background='red')
-        param = ''
-        for ind1, x in enumerate(self.positions):
-            for ind2, y in enumerate(x):
-                if (ind1 + ind2) % 2 == 1:
-                    color = 'B'
-                    try:
-                        param = eval('app.values["' + y.lower()[0:2] + 'b"]')
-                    except KeyError:
-                        pass
-                else:
-                    color = 'W'
-                    try:
-                        param = eval('app.values["' + y.lower()[0:2] + 'w"]')
-                    except KeyError:
-                        pass
-                if y[2] == 'k' or y[3] == 'c':
-                    if y[2] == 'k':
-                        color = 'R'
-                    else:
-                        color = 'Y'
-                    self.assign_pos_value((ind1, ind2), self.obtain_pos_value((ind1, ind2))[0:2] + '  ')
-                if y.lower() != '    ':
-                    piece_button = Button(app,
-                                          style=color+".TLabel",
-                                          command=lambda v=(ind1, ind2): app.button_pressed(v, self),
-                                          image=param,
-                                          compound=CENTER)
-                else:
-                    piece_button = Button(app,
-                                          style=color+".TLabel",
-                                          command=lambda v=(ind1, ind2): app.button_pressed(v, self))
-
-                piece_button.place(x=(80*ind2) + 25, y=(80*ind1)+25, width=74, height=74)
-        app.pack()
+    def put_pos_val(self, pos, val):
+        """
+        This method assigns a given value to a given board position.
+        :param pos: (tuple) Coordinates x and j of the desired position.
+        :param val: (str) Value to assign to the given position.
+        """
+        self.squares[int(pos[0])][int(pos[1])] = val
 
     def print_board_in_terminal(self):
-
-        print(' ' + ('-' * (2 * len(self.positions[0]) + 9)))
-        print('|     ' + ' '.join([str(i + 1) for i in range(len(self.positions[0]))]) + '     |')
-        print('|   ' + board_delimiter * ((2 * len(self.positions[0])) + 3) + '   | {}'.format(
+        """
+        This method was used before having a GUI. Now it's used mainly
+        to develop.
+        It prints the current state of the board in the terminal.
+        """
+        print(' ' + ('-' * (2 * len(self.squares[0]) + 9)))
+        print('|     ' + ' '.join([str(i + 1) for i in range(len(self.squares[0]))]) + '     |')
+        print('|   ' + board_delimiter * ((2 * len(self.squares[0])) + 3) + '   | {}'.format(
             'Killed by B:' + ' '.join(self.white_deaths) if len(self.white_deaths) else ''))
-        for i in range(len(self.positions)):
+        for i in range(len(self.squares)):
             line = '| ' + letters[i].upper() + ' ' + board_delimiter + ' '
             values = ''
-            for j in range(len(self.positions[0])):
-                value = self.positions[i][j]
+            for j in range(len(self.squares[0])):
+                value = self.squares[i][j]
                 if value[2] == 'k' or value[3] == 'c':
                     if value[2] == 'k':
-                        values += colored(self.positions[i][j][0], 'red')
+                        values += colored(self.squares[i][j][0], 'red')
                     else:
-                        values += colored(self.positions[i][j][0], 'yellow')
-                elif self.positions[i][j][1] == 'B':
-                    values += colored(self.positions[i][j][0], 'magenta')
-                elif self.positions[i][j][1] == 'W':
-                    values += colored(self.positions[i][j][0], 'white')
+                        values += colored(self.squares[i][j][0], 'yellow')
+                elif self.squares[i][j][1] == 'B':
+                    values += colored(self.squares[i][j][0], 'magenta')
+                elif self.squares[i][j][1] == 'W':
+                    values += colored(self.squares[i][j][0], 'white')
                 else:
                     values += ' '
                 values += ' '
             print(line + values + board_delimiter + ' ' + letters[i].upper() + ' |')
-        print('|   ' + board_delimiter * ((2 * len(self.positions[0])) + 3) + '   | {}'.format(
+        print('|   ' + board_delimiter * ((2 * len(self.squares[0])) + 3) + '   | {}'.format(
             'Killed by W:' + ' '.join(self.black_deaths) if len(self.black_deaths) else ''))
-        print('|     ' + ' '.join([str(i + 1) for i in range(len(self.positions[0]))]) + '     |')
-        print(' ' + ('-' * (2 * len(self.positions[0]) + 9)))
+        print('|     ' + ' '.join([str(i + 1) for i in range(len(self.squares[0]))]) + '     |')
+        print(' ' + ('-' * (2 * len(self.squares[0]) + 9)))
         white_timer.print_timer()
         black_timer.print_timer()
 
-    def move_piece(self, position, position2):
-        curr_pos_val = self.obtain_pos_value(position)
-        targ_pos_val = self.obtain_pos_value(position2)
+    def move_piece(self, pos, pos2):
+        """
+        This method moves a piece from one square of the board to another one
+        :param pos: (tuple) Source of the piece.
+        :param pos2: (tuple) Target of the piece.
+        """
+        pos_val = self.get_pos_val(pos)
+        targ_val = self.get_pos_val(pos2)
 
-        turn = curr_pos_val[1]
+        turn = pos_val[1]
 
-        self.assign_pos_value(position2, ''.join(curr_pos_val))
-        self.assign_pos_value(position, '    ')
+        self.put_pos_val(pos2, ''.join(pos_val))
+        self.put_pos_val(pos, '    ')
 
-        if targ_pos_val != '    ':
-            self.add_death(targ_pos_val)
-            new_val = list(curr_pos_val)
+        if targ_val != '    ':
+            self.add_death(targ_val[0:2])
+            new_val = list(pos_val)
             new_val[2] = 'k'
-            self.assign_pos_value(position2, "".join(new_val))
+            self.put_pos_val(pos2, "".join(new_val))
 
-        logging.getLogger('log1').warning('{} {}'.format(position, position2))
-        logging.getLogger('log2').warning('Player {} has moved {} from {} to {}'.format(curr_pos_val[1],
-                                                                                        curr_pos_val[0],
-                                                                                        position,
-                                                                                        position2))
-        if targ_pos_val[0].lower() == 'k':
+        logging.getLogger('log1').warning(
+            '{} {}'.format(pos, pos2))
+        logging.getLogger('log2').warning(
+            messages['MOVE_DONE'].format(pos_val[1], pos_val[0], pos, pos2))
+        if targ_val[0].lower() == 'k':
             self.print_board_in_terminal()
-            print(messages['PLAYER_WIN'].format(curr_pos_val[1]))
+            print(messages['PLAYER_WIN'].format(pos_val[1]))
             exit()
-        if curr_pos_val[0].lower() == 'p' and \
-                ((position2[0] == 0 and curr_pos_val[1].lower() == 'w') or
-                 (position2[0] == len(self.positions) - 1 and curr_pos_val[1].lower() == 'b')):
-            self.promote(position2, curr_pos_val)
 
-        self.check_if_check(curr_pos_val[1])
+        if pos_val[0].lower() == 'p' and \
+                ((pos2[0] == 0 and
+                  pos_val[1].lower() == 'w') or
+                 (pos2[0] == len(self.squares) - 1 and
+                  pos_val[1].lower() == 'b')):
+            self.promote(pos2, pos_val)
+
+        self.check_if_check(pos_val[1])
 
         if turn == 'W':
             white_timer.pause_time()
@@ -160,113 +144,190 @@ class Board:
             white_timer.start_time()
 
     def promote(self, position, value):
+        """
+        This method asks for the player to decide which piece wants
+        the pawn to promote to, and doesn't stop asking until a
+        correct piece has been given.
+        :param position: (tuple) The position where the piece will
+            be promoted.
+        :param value: (str) The current value of the piece before
+            getting promoted.
+        """
         correct_piece = False
         piece = ''
         while not correct_piece:
             print(messages['PROMOTE_PAWN'])
             piece = str(sys.stdin.readline()).replace('\n', '')
             correct_piece, piece = self.check_promotable(piece)
-        self.assign_pos_value(position, piece + value[1])
+        self.put_pos_val(position, piece + value[1:])
 
     @staticmethod
     def check_promotable(piece):
+        """
+        This method checks if the given piece number is correct and returns
+        the piece name (otherwise returns False and the number.)
+        :param piece: (int) The number given by the user.
+        """
         promotions = {1: 'Q', 2: 'H', 3: 'T', 4: 'B'}
         if int(piece) not in range(1, 5):
             return False, piece
         return True, promotions[int(piece)]
 
-    def check_all_free_ways(self, piece_movements, position, position2, show_output=False, attack_range=15):
-        for piece_movement in piece_movements:
-            if self.check_free_way(piece_movement, position, position2, attack_range, show_output):
+    def check_free_ways(self, movs, pos, pos2, att_rng=15, show=False):
+        """
+        This method checks all the possible directions of a piece to see
+        if a given movement is possible without having any obstacle on
+        the way.
+        :param movs: (list of tuples). Possible directions of the piece.
+        :param pos: (tuple) Source of the piece.
+        :param pos2: (tuple) Target of the piece.
+        :param att_rng: (int) The attack range of the piece.
+        :param show: (bool) If this method has to print the results.
+        :return: (bool) If the movement is possible.
+        """
+        for mov in movs:
+            if self.check_free_way(mov, pos, pos2, att_rng, show):
                 return 1
         return 0
 
-    def check_free_way(self, piece_movement, position, position2, attack_range, show_output=False):
+    def check_free_way(self, mov, pos, pos2, att_rng, show=False):
+        """
+        This method checks all the possible directions of a piece to see
+        if a given movement is possible without having any obstacle on
+        the way.
+        :param mov: (tuples). A possible direction of the piece.
+        :param pos: (tuple) Source of the piece.
+        :param pos2: (tuple) Target of the piece.
+        :param att_rng: (int) The attack range of the piece.
+        :param show: (bool) If this method has to print the results.
+        :return: (bool) If the movement is possible.
+        """
         incorrect_movement = False
-        for n in range(1, attack_range+1):
-            if position2[0] == position[0] + (piece_movement[0] * n) and \
-               position2[1] == position[1] + (piece_movement[1] * n):
+        for n in range(1, att_rng + 1):
+            if pos2[0] == pos[0] + (mov[0] * n) and \
+               pos2[1] == pos[1] + (mov[1] * n):
                 for j in range(n - 1, 0, -1):
-                    if self.obtain_pos_value((position[0] + (piece_movement[0] * j),
-                                              position[1] + (piece_movement[1] * j))) != '    ':
+                    if self.get_pos_val((pos[0] + (mov[0] * j),
+                                         pos[1] + (mov[1] * j))) != '    ':
+                        incorrect_movement = True
+                if mov in [[2, 0], [-2, 0]]:
+                    if self.get_pos_val((pos[0] + (mov[0] / 2),
+                                         pos[1])) != '    ':
                         incorrect_movement = True
                 if not incorrect_movement:
-                    if self.obtain_pos_value(position2)[1] == self.obtain_pos_value(position)[1]:
-                        if show_output:
+                    if self.get_pos_val(pos2)[1] == \
+                       self.get_pos_val(pos)[1]:
+                        if show:
                             print(messages['OWN_ATTACK'])
                         return 0
                     return 1
         return 0
 
-    def check_correct_move(self, position, position2, show_output=False):
-        piece_type = self.obtain_pos_value(position)[0].lower()
+    def check_correct_move(self, pos, pos2, show=False):
+        """
+        This method checks if a move is possible.
+        :param pos: (tuple) Source of the piece.
+        :param pos2: (tuple) Target of the piece.
+        :param show: (bool) If the results have to be printed.
+        :return: (bool) If the move is correct.
+        """
+        piece_type = self.get_pos_val(pos)[0].lower()
         if piece_type != 'p':
             try:
-                piece_movements = movements[piece_type]
+                movs = movements[piece_type]
             except KeyError:
                 return 0
             if piece_type == 'h' or piece_type == 'k':
-                return self.check_all_free_ways(piece_movements, position, position2, True, 1)
+                return self.check_free_ways(movs, pos, pos2, 1, True)
             else:
-                return self.check_all_free_ways(piece_movements, position, position2, True)
+                return self.check_free_ways(movs, pos, pos2, 15, True)
         else:
-            value_in_pos = self.obtain_pos_value(position)
-            value_in_tgt = self.obtain_pos_value(position2)
+            value_in_pos = self.get_pos_val(pos)
+            value_in_tgt = self.get_pos_val(pos2)
             if value_in_pos[1] == 'W':
-                piece_movements = movements['p_w']
+                movs = movements['p_w']
             else:
-                piece_movements = movements['p_b']
+                movs = movements['p_b']
             if value_in_tgt != '    ':
                 if value_in_pos[1] == 'W':
-                    piece_movements.extend(movements['p_attack_w'])
+                    movs.extend(movements['p_attack_w'])
                 else:
-                    piece_movements.extend(movements['p_attack_b'])
-            if self.is_first_pawn_movement(position):
+                    movs.extend(movements['p_attack_b'])
+            if self.is_first_pawn_movement(pos):
                 if value_in_pos[1] == 'W':
-                    piece_movements.extend(movements['p_first_move_w'])
+                    movs.extend(movements['p_first_move_w'])
                 else:
-                    piece_movements.extend(movements['p_first_move_b'])
+                    movs.extend(movements['p_first_move_b'])
 
-            for piece_movement in piece_movements:
-                if self.check_free_way(piece_movement, position, position2, 1, True):
+            for mov in movs:
+                if self.check_free_way(mov, pos, pos2, 1, True):
                     if value_in_tgt[1] == value_in_pos[1]:
-                        if show_output:
+                        if show:
                             print(messages['OWN_ATTACK'])
                         return 0
                     return 1
-        if show_output:
+        if show:
             print(messages['WRONG_MOVEMENT'])
         return 0
 
-    def is_first_pawn_movement(self, position):
-        return (position[0] == len(self.positions) - 2 and self.obtain_pos_value(position)[1] == 'W') or \
-               (position[0] == 1 and self.obtain_pos_value(position)[1] == 'B')
+    def is_first_pawn_movement(self, pos):
+        """
+        This method checks if its the first movement of the given pawn.
+        :param pos: (tuple) Position of the pawn.
+        :return: (bool) True if the pawn is in its original position,
+            false otherwise.
+        """
+        return (pos[0] == 1 and
+                self.get_pos_val(pos)[1] == 'B') or \
+               (pos[0] == len(self.squares) - 2 and
+                self.get_pos_val(pos)[1] == 'W')
 
     def check_if_check(self, turn):
+        """
+        This method checks if in the current state of the board, there is
+        any piece checking the opponents king. If there is, it updates its
+        state to be shown differently to the user.
+        :param turn: (str) the current turn.
+        """
         king = self.find_king(self.obtain_other_turn(turn))
-        for i in range(len(self.positions)):
-            for j in range(len(self.positions[0])):
-                value = self.obtain_pos_value((i, j))
+        for i in range(len(self.squares)):
+            for j in range(len(self.squares[0])):
+                value = self.get_pos_val((i, j))
                 if value[1].upper() == turn.upper():
                     if self.check_correct_move((i, j), king):
                         new_val = list(value)
                         new_val[3] = 'c'
-                        self.assign_pos_value((i, j), "".join(new_val))
+                        self.put_pos_val((i, j), "".join(new_val))
 
     def find_king(self, turn):
-        for i in range(len(self.positions)):
-            for j in range(len(self.positions[0])):
-                if self.positions[i][j][0:2] == 'K' + turn.upper():
+        """
+        This method searches for the king of a given color, and returns
+        its position.
+        :param turn: (str) The color of the wanted king.
+        :return: (tuple) The position of the king.
+        """
+        for i in range(len(self.squares)):
+            for j in range(len(self.squares[0])):
+                if self.squares[i][j][0:2] == 'K' + turn.upper():
                     return i, j
 
     @staticmethod
     def obtain_other_turn(turn):
+        """
+        This method returns the opposite turn given a turn.
+        :param turn: (str) The given turn.
+        :return: (str) The opposite to the given turn.
+        """
         if turn.lower() == 'w':
             return 'b'
         else:
             return 'w'
 
     def add_death(self, piece):
+        """
+        This method adds a piece to its list of deaths.
+        :param piece: (str) the name of the piece.
+        """
         if piece[1] == 'B':
             self.black_deaths.append(piece[0])
         else:

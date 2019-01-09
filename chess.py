@@ -33,5 +33,5 @@ if __name__ == "__main__":
     root = Tk()
     app = GameExecution()
     board = Board(size_x, size_y)
-    board.show_board(app)
+    app.show_board(board)
     root.mainloop()
