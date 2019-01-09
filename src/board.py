@@ -145,6 +145,7 @@ class Board:
             self.print_board_in_terminal()
             print(messages['PLAYER_WIN'].format(curr_pos_val[1]))
             exit()
+
         if curr_pos_val[0].lower() == 'p' and \
                 ((position2[0] == 0 and curr_pos_val[1].lower() == 'w') or
                  (position2[0] == len(self.positions) - 1 and curr_pos_val[1].lower() == 'b')):
@@ -189,6 +190,10 @@ class Board:
                 for j in range(n - 1, 0, -1):
                     if self.obtain_pos_value((position[0] + (piece_movement[0] * j),
                                               position[1] + (piece_movement[1] * j))) != '    ':
+                        incorrect_movement = True
+                if piece_movement in [[2, 0], [-2, 0]]:
+                    if self.obtain_pos_value((position[0] + (piece_movement[0] / 2),
+                                              position[1])) != '    ':
                         incorrect_movement = True
                 if not incorrect_movement:
                     if self.obtain_pos_value(position2)[1] == self.obtain_pos_value(position)[1]:
@@ -239,8 +244,8 @@ class Board:
         return 0
 
     def is_first_pawn_movement(self, position):
-        return (position[0] == len(self.positions) - 2 and self.obtain_pos_value(position)[1] == 'W') or \
-               (position[0] == 1 and self.obtain_pos_value(position)[1] == 'B')
+        return (position[0] == 1 and self.obtain_pos_value(position)[1] == 'B') or \
+               (position[0] == len(self.positions) - 2 and self.obtain_pos_value(position)[1] == 'W')
 
     def check_if_check(self, turn):
         king = self.find_king(self.obtain_other_turn(turn))
