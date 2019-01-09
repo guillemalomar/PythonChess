@@ -46,10 +46,10 @@ class GameExecution(tk.Frame):
         self.master.title("Chess")
         self.pack(fill=BOTH, expand=1)
         self.center_window()
-        self.other()
+        self.message_board()
+        self.close_button()
 
     def center_window(self):
-
         w = 665
         h = 705
 
@@ -68,7 +68,7 @@ class GameExecution(tk.Frame):
         my_text.insert('2.2', '\n\n\n A' + '\n'*6 + ' B' + '\n'*5 + ' C' + '\n'*5 + ' D' + '\n'*6 + ' E' + '\n'*5 + ' F' + '\n'*5 + ' G' + '\n'*5 + ' H')
         my_text.pack()
 
-    def other(self):
+    def message_board(self):
         self.frame = Frame(self, relief=RAISED, borderwidth=1)
         self.frame.pack(fill=BOTH, expand=True)
 
@@ -76,6 +76,7 @@ class GameExecution(tk.Frame):
         self.my_text.insert('1.0', turns[self.turn] + ' - ' + phases[self.phase])
         self.my_text.pack(side=LEFT, padx=5)
 
+    def close_button(self):
         button_style = Style()
         button_style.configure("TButton", background='white')
         close_button = Button(self, text="Quit", command=self.quit)
@@ -96,5 +97,5 @@ class GameExecution(tk.Frame):
             self.phase = next(phase_iter)
         self.my_text.insert('1.0', turns[self.turn] + ' - ' + phases[self.phase] + '    White:' + white_timer.format_time() + ' Black:' + black_timer.format_time() + '\n')
         self.my_text.pack(side=LEFT)
-        board.print_board()
+        board.print_board_in_terminal()
         board.show_board(self)
