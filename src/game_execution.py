@@ -19,9 +19,10 @@ turns = {
 
 class GameExecution(tk.Frame):
 
-    def __init__(self):
+    def __init__(self, mode):
         super().__init__()
 
+        self.mode = mode
         self.turn = next(turn_iter)
         self.phase = next(phase_iter)
         self.config(background='black')
@@ -108,6 +109,9 @@ class GameExecution(tk.Frame):
         if self.phase == 'P' and pos_value[1] == self.turn:
             self.piece_to_move = position
             self.phase = next(phase_iter)
+            if self.mode == 'normal':
+                board.check_movements(position)
+                print(board.squares)
         elif self.phase == 'T':
             self.place_to_move = position
             if board.check_correct_move(self.piece_to_move, self.place_to_move, True):
@@ -130,6 +134,7 @@ class GameExecution(tk.Frame):
         button_style.configure("W.TLabel", background='white')
         button_style.configure("Y.TLabel", background='yellow')
         button_style.configure("R.TLabel", background='red')
+        button_style.configure("G.TLabel", background='green')
         param = ''
         for ind1, x in enumerate(board.squares):
             for ind2, y in enumerate(x):
@@ -145,13 +150,15 @@ class GameExecution(tk.Frame):
                         param = eval('self.values["' + y.lower()[0:2] + 'w"]')
                     except KeyError:
                         pass
-                if y[2] == 'k' or y[3] == 'c':
+                if y[2] == 'k' or y[3] == 'c' or y[4] == 'l':
                     if y[2] == 'k':
                         color = 'R'
-                    else:
+                    elif y[3] == 'c':
                         color = 'Y'
-                    board.put_pos_val((ind1, ind2), board.get_pos_val((ind1, ind2))[0:2] + '  ')
-                if y.lower() != '    ':
+                    elif y[4] == 'l':
+                        color = 'G'
+                    board.put_pos_val((ind1, ind2), board.get_pos_val((ind1, ind2))[0:2] + '   ')
+                if y.lower()[0:4] != '    ':
                     piece_button = Button(self,
                                           style=color+".TLabel",
                                           command=lambda v=(ind1, ind2): self.pressed(v, board),

@@ -14,30 +14,30 @@ class Board:
         :param coordinates_x: (int) desired width of the board.
         :param coordinates_y: (int) desired depth of the board.
         """
-        self.squares = [['    ' for _ in range(coordinates_x)] for _ in range(coordinates_y)]
+        self.squares = [['     ' for _ in range(coordinates_x)] for _ in range(coordinates_y)]
 
         #            V  H
-        self.squares[0][0] = 'TB  '
-        self.squares[0][1] = 'HB  '
-        self.squares[0][2] = 'BB  '
-        self.squares[0][3] = 'QB  '
-        self.squares[0][4] = 'KB  '
-        self.squares[0][5] = 'BB  '
-        self.squares[0][6] = 'HB  '
-        self.squares[0][7] = 'TB  '
+        self.squares[0][0] = 'TB   '
+        self.squares[0][1] = 'HB   '
+        self.squares[0][2] = 'BB   '
+        self.squares[0][3] = 'QB   '
+        self.squares[0][4] = 'KB   '
+        self.squares[0][5] = 'BB   '
+        self.squares[0][6] = 'HB   '
+        self.squares[0][7] = 'TB   '
 
-        self.squares[coordinates_y - 1][0] = 'TW  '
-        self.squares[coordinates_y - 1][1] = 'HW  '
-        self.squares[coordinates_y - 1][2] = 'BW  '
-        self.squares[coordinates_y - 1][3] = 'QW  '
-        self.squares[coordinates_y - 1][4] = 'KW  '
-        self.squares[coordinates_y - 1][5] = 'BW  '
-        self.squares[coordinates_y - 1][6] = 'HW  '
-        self.squares[coordinates_y - 1][7] = 'TW  '
+        self.squares[coordinates_y - 1][0] = 'TW   '
+        self.squares[coordinates_y - 1][1] = 'HW   '
+        self.squares[coordinates_y - 1][2] = 'BW   '
+        self.squares[coordinates_y - 1][3] = 'QW   '
+        self.squares[coordinates_y - 1][4] = 'KW   '
+        self.squares[coordinates_y - 1][5] = 'BW   '
+        self.squares[coordinates_y - 1][6] = 'HW   '
+        self.squares[coordinates_y - 1][7] = 'TW   '
 
         for i in range(coordinates_x):
-            self.squares[1][i] = 'PB  '
-            self.squares[coordinates_y - 2][i] = 'PW  '
+            self.squares[1][i] = 'PB   '
+            self.squares[coordinates_y - 2][i] = 'PW   '
 
         self.black_deaths = []
         self.white_deaths = []
@@ -78,11 +78,13 @@ class Board:
             values = ''
             for j in range(len(self.squares[0])):
                 value = self.squares[i][j]
-                if value[2] == 'k' or value[3] == 'c':
+                if value[2] == 'k' or value[3] == 'c' or value[4] == 'l':
                     if value[2] == 'k':
                         values += colored(self.squares[i][j][0], 'red')
-                    else:
+                    elif value[3] == 'c':
                         values += colored(self.squares[i][j][0], 'yellow')
+                    else:
+                        values += colored(self.squares[i][j][0], 'green')
                 elif self.squares[i][j][1] == 'B':
                     values += colored(self.squares[i][j][0], 'magenta')
                 elif self.squares[i][j][1] == 'W':
@@ -110,7 +112,7 @@ class Board:
         turn = pos_val[1]
 
         self.put_pos_val(pos2, ''.join(pos_val))
-        self.put_pos_val(pos, '    ')
+        self.put_pos_val(pos, '     ')
 
         if targ_val != '    ':
             self.add_death(targ_val[0:2])
@@ -208,11 +210,11 @@ class Board:
                pos2[1] == pos[1] + (mov[1] * n):
                 for j in range(n - 1, 0, -1):
                     if self.get_pos_val((pos[0] + (mov[0] * j),
-                                         pos[1] + (mov[1] * j))) != '    ':
+                                         pos[1] + (mov[1] * j))) != '     ':
                         incorrect_movement = True
                 if mov in [[2, 0], [-2, 0]]:
                     if self.get_pos_val((pos[0] + (mov[0] / 2),
-                                         pos[1])) != '    ':
+                                         pos[1])) != '     ':
                         incorrect_movement = True
                 if not incorrect_movement:
                     if self.get_pos_val(pos2)[1] == \
@@ -245,9 +247,9 @@ class Board:
             value_in_pos = self.get_pos_val(pos)
             value_in_tgt = self.get_pos_val(pos2)
             if value_in_pos[1] == 'W':
-                movs = movements['p_w']
+                movs = list(movements['p_w'])
             else:
-                movs = movements['p_b']
+                movs = list(movements['p_b'])
             if value_in_tgt != '    ':
                 if value_in_pos[1] == 'W':
                     movs.extend(movements['p_attack_w'])
@@ -332,3 +334,100 @@ class Board:
             self.black_deaths.append(piece[0])
         else:
             self.white_deaths.append(piece[0])
+
+    def check_movements(self, pos):
+        piece_type = self.get_pos_val(pos)[0].lower()
+        value = self.get_pos_val(pos)
+        if piece_type != 'p':
+            try:
+                moves = movements[piece_type]
+            except KeyError:
+                return 0
+            if piece_type == 'h' or piece_type == 'k':
+                mov_range = 2
+            else:
+                mov_range = 15
+            for mov in moves:
+                for i in range(1, mov_range):
+                    new_pos = (pos[0] + (mov[0] * i),
+                               pos[1] + (mov[1] * i))
+                    if new_pos[0] in range(0, 8) and new_pos[1] in range(0, 8):
+                        new_val = self.get_pos_val(new_pos)
+                        if new_val[1] != value[1] or new_val[0:4] == '    ':
+                            new_val = list(new_val)
+                            new_val[4] = 'l'
+                            self.put_pos_val(new_pos, "".join(new_val))
+                            if "".join(new_val)[0:4] != '    ':
+                                break
+                        else:
+                            break
+                    else:
+                        break
+        else:
+            if value[1] == 'W':
+                moves = list(movements['p_w'])
+                for m in movements['p_attack_w']:
+                    poss_att = (pos[0] + m[0],
+                                pos[1] + m[1])
+                    if poss_att[0] in range(0, 8) and poss_att[1] in range(0, 8):
+                        if self.get_pos_val(poss_att)[1].lower() == 'b':
+                            moves.append(m)
+            else:
+                moves = list(movements['p_b'])
+                for m in movements['p_attack_b']:
+                    poss_att = (pos[0] + m[0],
+                                pos[1] + m[1])
+                    if poss_att[0] in range(0, 8) and poss_att[1] in range(0, 8):
+                        if self.get_pos_val(poss_att)[1].lower() == 'w':
+                            moves.append(m)
+            if self.is_first_pawn_movement(pos):
+                if value[1] == 'W':
+                    moves.extend(movements['p_first_move_w'])
+                else:
+                    moves.extend(movements['p_first_move_b'])
+            print(moves)
+            for mov in moves:
+                new_pos = (pos[0] + mov[0],
+                           pos[1] + mov[1])
+                if new_pos[0] in range(0, 8) and new_pos[1] in range(0, 8):
+                    new_val = self.get_pos_val(new_pos)
+                    if new_val[1] != value[1] or new_val[0:4] == '    ':
+                        new_val = list(new_val)
+                        new_val[4] = 'l'
+                        self.put_pos_val(new_pos, "".join(new_val))
+                        if "".join(new_val)[0:4] != '    ':
+                            break
+                    else:
+                        break
+                else:
+                    break
+        '''
+        else:
+            value_in_pos = self.get_pos_val(pos)
+            value_in_tgt = self.get_pos_val(pos2)
+            if value_in_pos[1] == 'W':
+                moves = movements['p_w']
+            else:
+                moves = movements['p_b']
+            if value_in_tgt != '    ':
+                if value_in_pos[1] == 'W':
+                    moves.extend(movements['p_attack_w'])
+                else:
+                    moves.extend(movements['p_attack_b'])
+            if self.is_first_pawn_movement(pos):
+                if value_in_pos[1] == 'W':
+                    moves.extend(movements['p_first_move_w'])
+                else:
+                    moves.extend(movements['p_first_move_b'])
+
+            for mov in moves:
+                if self.check_free_way(mov, pos, pos2, 1, True):
+                    if value_in_tgt[1] == value_in_pos[1]:
+                        if show:
+                            print(messages['OWN_ATTACK'])
+                        return 0
+                    return 1
+        if show:
+            print(messages['WRONG_MOVEMENT'])
+        return 0
+        '''
