@@ -3,7 +3,7 @@ import sys
 from src.conf.settings import board_delimiter, letters, messages
 from src.conf.movements import movements
 from termcolor import colored
-from src.timer import black_timer, white_timer
+from src.timer import Timer
 
 
 class Board:
@@ -42,6 +42,9 @@ class Board:
 
         self.black_deaths = []
         self.white_deaths = []
+
+        self.black_timer = Timer('B')
+        self.white_timer = Timer('W')
 
     def get_pos_val(self, pos):
         """
@@ -98,8 +101,8 @@ class Board:
             'Killed by W:' + ' '.join(self.black_deaths) if len(self.black_deaths) else ''))
         print('|     ' + ' '.join([str(i + 1) for i in range(len(self.squares[0]))]) + '     |')
         print(' ' + ('-' * (2 * len(self.squares[0]) + 9)))
-        white_timer.print_timer()
-        black_timer.print_timer()
+        self.white_timer.print_timer()
+        self.black_timer.print_timer()
 
     def move_piece(self, pos, pos2):
         """
@@ -142,11 +145,11 @@ class Board:
         self.check_if_check(pos_val[1])
 
         if turn == 'W':
-            white_timer.pause_time()
-            black_timer.start_time()
+            self.white_timer.pause_time()
+            self.black_timer.start_time()
         else:
-            black_timer.pause_time()
-            white_timer.start_time()
+            self.black_timer.pause_time()
+            self.white_timer.start_time()
 
         return True
 

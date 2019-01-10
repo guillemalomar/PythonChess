@@ -1,17 +1,16 @@
 import itertools
 import tkinter as tk
 from PIL import Image, ImageTk
-from tkinter import BOTH, CENTER, RIGHT, LEFT, RAISED, Text
+from tkinter import BOTH, CENTER, RIGHT, LEFT, RAISED, Text, Tk
 from tkinter.ttk import Frame, Button, Style
 from src.timer import black_timer, white_timer
 from src.conf.settings import messages
+from src.board import Board
 
-phase_iter = itertools.cycle('PT')
 phases = {
     'P': 'Choose Piece',
     'T': 'Choose Target'
 }
-turn_iter = itertools.cycle('WB')
 turns = {
     'W': 'White plays',
     'B': 'Black plays'
@@ -23,13 +22,16 @@ class GameExecution(tk.Frame):
     def __init__(self, mode, board):
         super().__init__()
 
+        self.phase_iter = itertools.cycle('PT')
+        self.turn_iter = itertools.cycle('WB')
+
         self.mode = mode
         self.board = board
-        self.turn = next(turn_iter)
-        self.phase = next(phase_iter)
-        self.config(background='black')
+        self.turn = next(self.turn_iter)
+        self.phase = next(self.phase_iter)
         self.go_on = True
 
+        self.config(background='black')
         self.style = Style()
 
         self.init_ui()
@@ -55,6 +57,7 @@ class GameExecution(tk.Frame):
         self.pack(fill=BOTH, expand=1)
         self.center_window()
         self.message_board()
+        self.restart_button()
         self.close_button()
 
     def center_window(self):
@@ -86,9 +89,19 @@ class GameExecution(tk.Frame):
         self.frame = Frame(self, relief=RAISED, borderwidth=1)
         self.frame.pack(fill=BOTH, expand=True)
 
-        self.my_text = Text(self, width=80, height=2)
+        self.my_text = Text(self, width=63, height=2)
         self.my_text.insert('1.0', turns[self.turn] + ' - ' + phases[self.phase])
         self.my_text.pack(side=LEFT, padx=5)
+
+    def restart_button(self):
+        """
+        This method prepares the restart button.
+        :return:
+        """
+        button_style = Style()
+        button_style.configure("TButton", background='white')
+        close_button = Button(self, text="Restart", command=lambda: self.restart())
+        close_button.pack(side=LEFT, padx=5, pady=5)
 
     def close_button(self):
         """
@@ -99,6 +112,18 @@ class GameExecution(tk.Frame):
         button_style.configure("TButton", background='white')
         close_button = Button(self, text="Quit", command=self.quit)
         close_button.pack(side=RIGHT, padx=5, pady=5)
+
+    def restart(self):
+        board = Board(8, 8)
+        self.board = board
+        self.phase_iter = itertools.cycle('PT')
+        self.turn_iter = itertools.cycle('WB')
+        self.turn = next(self.turn_iter)
+        self.phase = next(self.phase_iter)
+        self.go_on = True
+        self.piece_to_move = ''
+        self.place_to_move = ''
+        self.show_board()
 
     def pressed(self, position):
         """
@@ -111,7 +136,7 @@ class GameExecution(tk.Frame):
             pos_value = self.board.get_pos_val(position)
             if self.phase == 'P' and pos_value[1] == self.turn:
                 self.piece_to_move = position
-                self.phase = next(phase_iter)
+                self.phase = next(self.phase_iter)
                 if self.mode == 'learn':
                     self.board.check_movements(position)
             elif self.phase == 'T':
@@ -119,13 +144,16 @@ class GameExecution(tk.Frame):
                 corr_mov = self.board.check_correct_move(self.piece_to_move, self.place_to_move)
                 if corr_mov['output']:
                     self.go_on = self.board.move_piece(self.piece_to_move, self.place_to_move)
-                    self.turn = next(turn_iter)
+                    self.turn = next(self.turn_iter)
                 else:
-                    self.my_text.insert('1.0',
-                                        corr_mov['errors'] + ' ')
-                self.phase = next(phase_iter)
+                    self.my_text.insert('1.0', corr_mov['errors'] + '\n')
+                self.phase = next(self.phase_iter)
             if self.go_on:
-                self.my_text.insert('1.0', turns[self.turn] + ' - ' + phases[self.phase] + '    White:' + white_timer.format_time() + ' Black:' + black_timer.format_time() + '\n')
+                if self.phase == "T":
+                    space = '|'
+                else:
+                    space = ' |'
+                self.my_text.insert('1.0', turns[self.turn] + ' - ' + phases[self.phase] + space + 'White:' + white_timer.format_time() + ' Black:' + black_timer.format_time() + '\n')
             else:
                 self.my_text.insert('1.0',
                                     messages['PLAYER_WIN'].format(self.board.obtain_other_turn(self.turn).upper()) + '\n')
