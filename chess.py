@@ -18,22 +18,10 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Python Chess',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--sizex', action="store", dest="size_x",
-                        help="Horizontal size of the chess board",
-                        default=size_x, type=int)
-    parser.add_argument('--sizey', action="store", dest="size_y",
-                        help="Vertical size of the chess board",
-                        default=size_y, type=int)
     parser.add_argument('-l', action="store_true",
                         help="Activate learning mode mode",
                         default=False, dest='learn')
-    '''
-    parser.add_argument('-c', action="store_true",
-                        help="If you want to continue a game stored in src/logs/movements.log")
-    '''
     args = parser.parse_args()
-    size_x = args.size_x
-    size_y = args.size_y
     if args.learn:
         mode = 'learn'
     else:

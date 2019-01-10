@@ -3,14 +3,15 @@ import sys
 from src.conf.settings import board_delimiter, letters, messages
 from src.conf.movements import movements
 from termcolor import colored
-from src.timer import black_timer, white_timer
+from src.timer import Timer
 
 
 class Board:
     def __init__(self, coordinates_x, coordinates_y):
         """
-        This method initializes a board, with a size specified in its parameters.
-        It also creates the lists to store the killed pieces for each player.
+        This method initializes a board, with a size specified in its
+        parameters. It also creates the lists to store the killed pieces
+        for each player.
         :param coordinates_x: (int) desired width of the board.
         :param coordinates_y: (int) desired depth of the board.
         """
@@ -42,6 +43,10 @@ class Board:
 
         self.black_deaths = []
         self.white_deaths = []
+
+        self.black_timer = Timer('B')
+        self.white_timer = Timer('W')
+        self.white_timer.start_time()
 
     def get_pos_val(self, pos):
         """
@@ -98,12 +103,13 @@ class Board:
             'Killed by W:' + ' '.join(self.black_deaths) if len(self.black_deaths) else ''))
         print('|     ' + ' '.join([str(i + 1) for i in range(len(self.squares[0]))]) + '     |')
         print(' ' + ('-' * (2 * len(self.squares[0]) + 9)))
-        white_timer.print_timer()
-        black_timer.print_timer()
+        self.white_timer.print_timer()
+        self.black_timer.print_timer()
 
     def move_piece(self, pos, pos2):
         """
-        This method moves a piece from one square of the board to another one
+        This method moves a piece from one square of the board to
+        another one
         :param pos: (tuple) Source of the piece.
         :param pos2: (tuple) Target of the piece.
         """
@@ -128,7 +134,7 @@ class Board:
         logging.getLogger('log2').info(
             messages['MOVE_DONE'].format(pos_val[1], pos_val[0], pos, pos2))
         if targ_val[0].lower() == 'k':
-            self.print_board_in_terminal()
+            # self.print_board_in_terminal()
             print(messages['PLAYER_WIN'].format(pos_val[1]))
             exit()
 
@@ -142,11 +148,11 @@ class Board:
         self.check_if_check(pos_val[1])
 
         if turn == 'W':
-            white_timer.pause_time()
-            black_timer.start_time()
+            self.white_timer.pause_time()
+            self.black_timer.start_time()
         else:
-            black_timer.pause_time()
-            white_timer.start_time()
+            self.black_timer.pause_time()
+            self.white_timer.start_time()
 
         return True
 
@@ -356,7 +362,8 @@ class Board:
                 for i in range(1, mov_range):
                     new_pos = (pos[0] + (mov[0] * i),
                                pos[1] + (mov[1] * i))
-                    if new_pos[0] in range(0, 8) and new_pos[1] in range(0, 8):
+                    if new_pos[0] in range(0, 8) and \
+                       new_pos[1] in range(0, 8):
                         new_val = self.get_pos_val(new_pos)
                         if new_val[1] != value[1] or new_val[0:4] == '    ':
                             new_val = list(new_val)
@@ -374,7 +381,8 @@ class Board:
                 for m in movements['p_attack_w']:
                     poss_att = (pos[0] + m[0],
                                 pos[1] + m[1])
-                    if poss_att[0] in range(0, 8) and poss_att[1] in range(0, 8):
+                    if poss_att[0] in range(0, 8) and \
+                       poss_att[1] in range(0, 8):
                         if self.get_pos_val(poss_att)[1].lower() == 'b':
                             moves.append(m)
             else:
@@ -382,7 +390,8 @@ class Board:
                 for m in movements['p_attack_b']:
                     poss_att = (pos[0] + m[0],
                                 pos[1] + m[1])
-                    if poss_att[0] in range(0, 8) and poss_att[1] in range(0, 8):
+                    if poss_att[0] in range(0, 8) and \
+                       poss_att[1] in range(0, 8):
                         if self.get_pos_val(poss_att)[1].lower() == 'w':
                             moves.append(m)
             if self.is_first_pawn_movement(pos):
