@@ -40,7 +40,3 @@ class Timer:
 
     def print_timer(self):
         print("Time spent by " + self.name + ": " + self.format_time())
-
-
-black_timer = Timer('B')
-white_timer = Timer('W')

@@ -46,6 +46,7 @@ class Board:
 
         self.black_timer = Timer('B')
         self.white_timer = Timer('W')
+        self.white_timer.start_time()
 
     def get_pos_val(self, pos):
         """
