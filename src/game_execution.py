@@ -61,8 +61,8 @@ class GameExecution(tk.Frame):
         """
         This method prepares the board interface.
         """
-        w = 665
-        h = 705
+        w = 625
+        h = 664
 
         sw = self.master.winfo_screenwidth()
         sh = self.master.winfo_screenheight()
@@ -73,10 +73,10 @@ class GameExecution(tk.Frame):
         self.master.geometry('%dx%d+%d+%d' % (w, h, x, y))
         self.style.theme_use("default")
 
-        my_text = Text(self, width=100, height=44)
+        my_text = Text(self, width=100, height=41)
         my_text.config(background='LightSteelBlue')
-        my_text.insert('2.2', ' '*7 + (' '*11).join('123') + ' '*10 + (' '*11).join('45') + ' '*10 + (' '*11).join('67') + ' '*10 + (' '*11).join('8'))
-        my_text.insert('2.2', '\n\n\n A' + '\n'*6 + ' B' + '\n'*5 + ' C' + '\n'*5 + ' D' + '\n'*6 + ' E' + '\n'*5 + ' F' + '\n'*5 + ' G' + '\n'*5 + ' H')
+        my_text.insert('2.2', ' '*7 + (' '*10).join('123') + ' '*9 + (' '*9).join('45') + ' '*10 + (' '*10).join('67') + ' '*9 + '8')
+        my_text.insert('2.2', '\n\n\n A' + '\n'*5 + ' B' + '\n'*5 + ' C' + '\n'*5 + ' D' + '\n'*5 + ' E' + '\n'*5 + ' F' + '\n'*5 + ' G' + '\n'*5 + ' H')
         my_text.pack()
 
     def message_board(self):
@@ -86,7 +86,7 @@ class GameExecution(tk.Frame):
         self.frame = Frame(self, relief=RAISED, borderwidth=1)
         self.frame.pack(fill=BOTH, expand=True)
 
-        self.my_text = Text(self, width=80, height=1)
+        self.my_text = Text(self, width=80, height=2)
         self.my_text.insert('1.0', turns[self.turn] + ' - ' + phases[self.phase])
         self.my_text.pack(side=LEFT, padx=5)
 
@@ -129,7 +129,7 @@ class GameExecution(tk.Frame):
             else:
                 self.my_text.insert('1.0',
                                     messages['PLAYER_WIN'].format(self.board.obtain_other_turn(self.turn).upper()) + '\n')
-            self.my_text.pack(side=LEFT)
+            self.my_text.pack(side=LEFT, padx=5)
             self.board.print_board_in_terminal()
         self.show_board()
 
@@ -179,5 +179,5 @@ class GameExecution(tk.Frame):
                                           style=color+".TLabel",
                                           command=lambda v=(ind1, ind2): self.pressed(v))
 
-                piece_button.place(x=(80*ind2) + 25, y=(80*ind1)+25, width=74, height=74)
+                piece_button.place(x=(74*ind2) + 25, y=(74*ind1)+25, width=68, height=68)
         self.pack()
