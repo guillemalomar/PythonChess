@@ -4,6 +4,7 @@ from PIL import Image, ImageTk
 from tkinter import BOTH, CENTER, RIGHT, LEFT, RAISED, Text
 from tkinter.ttk import Frame, Button, Style
 from src.timer import black_timer, white_timer
+from src.conf.settings import messages
 
 phase_iter = itertools.cycle('PT')
 phases = {
@@ -19,13 +20,15 @@ turns = {
 
 class GameExecution(tk.Frame):
 
-    def __init__(self, mode):
+    def __init__(self, mode, board):
         super().__init__()
 
         self.mode = mode
+        self.board = board
         self.turn = next(turn_iter)
         self.phase = next(phase_iter)
         self.config(background='black')
+        self.go_on = True
 
         self.style = Style()
 
@@ -97,37 +100,43 @@ class GameExecution(tk.Frame):
         close_button = Button(self, text="Quit", command=self.quit)
         close_button.pack(side=RIGHT, padx=5, pady=5)
 
-    def pressed(self, position, board):
+    def pressed(self, position):
         """
         This method is called every time a board button is pressed. It
         checks the current turn and phase, to check if the pressed button
         belongs to a possible situation, and acts consequently.
         :param position: (tuple) the position of the pressed button.
-        :param board: (Board) the current game board.
         """
-        pos_value = board.get_pos_val(position)
-        if self.phase == 'P' and pos_value[1] == self.turn:
-            self.piece_to_move = position
-            self.phase = next(phase_iter)
-            if self.mode == 'learn':
-                board.check_movements(position)
-                print(board.squares)
-        elif self.phase == 'T':
-            self.place_to_move = position
-            if board.check_correct_move(self.piece_to_move, self.place_to_move, True):
-                board.move_piece(self.piece_to_move, self.place_to_move)
-                self.turn = next(turn_iter)
-            self.phase = next(phase_iter)
-        self.my_text.insert('1.0', turns[self.turn] + ' - ' + phases[self.phase] + '    White:' + white_timer.format_time() + ' Black:' + black_timer.format_time() + '\n')
-        self.my_text.pack(side=LEFT)
-        board.print_board_in_terminal()
-        self.show_board(board)
+        if self.go_on:
+            pos_value = self.board.get_pos_val(position)
+            if self.phase == 'P' and pos_value[1] == self.turn:
+                self.piece_to_move = position
+                self.phase = next(phase_iter)
+                if self.mode == 'learn':
+                    self.board.check_movements(position)
+            elif self.phase == 'T':
+                self.place_to_move = position
+                corr_mov = self.board.check_correct_move(self.piece_to_move, self.place_to_move)
+                if corr_mov['output']:
+                    self.go_on = self.board.move_piece(self.piece_to_move, self.place_to_move)
+                    self.turn = next(turn_iter)
+                else:
+                    self.my_text.insert('1.0',
+                                        corr_mov['errors'] + ' ')
+                self.phase = next(phase_iter)
+            if self.go_on:
+                self.my_text.insert('1.0', turns[self.turn] + ' - ' + phases[self.phase] + '    White:' + white_timer.format_time() + ' Black:' + black_timer.format_time() + '\n')
+            else:
+                self.my_text.insert('1.0',
+                                    messages['PLAYER_WIN'].format(self.board.obtain_other_turn(self.turn).upper()) + '\n')
+            self.my_text.pack(side=LEFT)
+            self.board.print_board_in_terminal()
+        self.show_board()
 
-    def show_board(self, board):
+    def show_board(self):
         """
         This method creates all the buttons needed to represent a board in
         the current game instance.
-        :param board: (GameExecution) The current board.
         """
         button_style = Style()
         button_style.configure("B.TLabel", background='black')
@@ -136,7 +145,7 @@ class GameExecution(tk.Frame):
         button_style.configure("R.TLabel", background='red')
         button_style.configure("G.TLabel", background='green')
         param = ''
-        for ind1, x in enumerate(board.squares):
+        for ind1, x in enumerate(self.board.squares):
             for ind2, y in enumerate(x):
                 if (ind1 + ind2) % 2 == 1:
                     color = 'B'
@@ -157,17 +166,18 @@ class GameExecution(tk.Frame):
                         color = 'Y'
                     elif y[4] == 'l':
                         color = 'G'
-                    board.put_pos_val((ind1, ind2), board.get_pos_val((ind1, ind2))[0:2] + '   ')
+                    self.board.put_pos_val((ind1, ind2),
+                                            self.board.get_pos_val((ind1, ind2))[0:2] + '   ')
                 if y.lower()[0:4] != '    ':
                     piece_button = Button(self,
                                           style=color+".TLabel",
-                                          command=lambda v=(ind1, ind2): self.pressed(v, board),
+                                          command=lambda v=(ind1, ind2): self.pressed(v),
                                           image=param,
                                           compound=CENTER)
                 else:
                     piece_button = Button(self,
                                           style=color+".TLabel",
-                                          command=lambda v=(ind1, ind2): self.pressed(v, board))
+                                          command=lambda v=(ind1, ind2): self.pressed(v))
 
                 piece_button.place(x=(80*ind2) + 25, y=(80*ind1)+25, width=74, height=74)
         self.pack()

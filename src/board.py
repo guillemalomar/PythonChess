@@ -14,7 +14,8 @@ class Board:
         :param coordinates_x: (int) desired width of the board.
         :param coordinates_y: (int) desired depth of the board.
         """
-        self.squares = [['     ' for _ in range(coordinates_x)] for _ in range(coordinates_y)]
+        self.squares = [['     ' for _ in range(coordinates_x)]
+                        for _ in range(coordinates_y)]
 
         #            V  H
         self.squares[0][0] = 'TB   '
@@ -115,14 +116,16 @@ class Board:
         self.put_pos_val(pos, '     ')
 
         if targ_val[0:4] != '    ':
+            if targ_val[0] == 'K':
+                return False
             self.add_death(targ_val[0:2])
             new_val = list(pos_val)
             new_val[2] = 'k'
             self.put_pos_val(pos2, "".join(new_val))
 
-        logging.getLogger('log1').warning(
+        logging.getLogger('log1').info(
             '{} {}'.format(pos, pos2))
-        logging.getLogger('log2').warning(
+        logging.getLogger('log2').info(
             messages['MOVE_DONE'].format(pos_val[1], pos_val[0], pos, pos2))
         if targ_val[0].lower() == 'k':
             self.print_board_in_terminal()
@@ -144,6 +147,8 @@ class Board:
         else:
             black_timer.pause_time()
             white_timer.start_time()
+
+        return True
 
     def promote(self, position, value):
         """
@@ -175,7 +180,7 @@ class Board:
             return False, piece
         return True, promotions[int(piece)]
 
-    def check_free_ways(self, movs, pos, pos2, att_rng=15, show=False):
+    def check_free_ways(self, movs, pos, pos2, att_rng=15):
         """
         This method checks all the possible directions of a piece to see
         if a given movement is possible without having any obstacle on
@@ -184,15 +189,16 @@ class Board:
         :param pos: (tuple) Source of the piece.
         :param pos2: (tuple) Target of the piece.
         :param att_rng: (int) The attack range of the piece.
-        :param show: (bool) If this method has to print the results.
         :return: (bool) If the movement is possible.
         """
+        free_way = {}
         for mov in movs:
-            if self.check_free_way(mov, pos, pos2, att_rng, show):
-                return 1
-        return 0
+            free_way = self.check_free_way(mov, pos, pos2, att_rng)
+            if free_way['output']:
+                return free_way
+        return free_way
 
-    def check_free_way(self, mov, pos, pos2, att_rng, show=False):
+    def check_free_way(self, mov, pos, pos2, att_rng):
         """
         This method checks all the possible directions of a piece to see
         if a given movement is possible without having any obstacle on
@@ -201,7 +207,6 @@ class Board:
         :param pos: (tuple) Source of the piece.
         :param pos2: (tuple) Target of the piece.
         :param att_rng: (int) The attack range of the piece.
-        :param show: (bool) If this method has to print the results.
         :return: (bool) If the movement is possible.
         """
         incorrect_movement = False
@@ -219,30 +224,27 @@ class Board:
                 if not incorrect_movement:
                     if self.get_pos_val(pos2)[1] == \
                        self.get_pos_val(pos)[1]:
-                        if show:
-                            print(messages['OWN_ATTACK'])
-                        return 0
-                    return 1
-        return 0
+                        return {'output': False,
+                                'errors': messages['OWN_ATTACK']}
+                    return {'output': True,
+                            'errors': ''}
+        return {'output': False,
+                'errors': messages['NO_MOVEMENT']}
 
-    def check_correct_move(self, pos, pos2, show=False):
+    def check_correct_move(self, pos, pos2):
         """
         This method checks if a move is possible.
         :param pos: (tuple) Source of the piece.
         :param pos2: (tuple) Target of the piece.
-        :param show: (bool) If the results have to be printed.
         :return: (bool) If the move is correct.
         """
         piece_type = self.get_pos_val(pos)[0].lower()
         if piece_type != 'p':
-            try:
-                movs = movements[piece_type]
-            except KeyError:
-                return 0
+            movs = movements[piece_type]
             if piece_type == 'h' or piece_type == 'k':
-                return self.check_free_ways(movs, pos, pos2, 1, True)
+                return self.check_free_ways(movs, pos, pos2, 1)
             else:
-                return self.check_free_ways(movs, pos, pos2, 15, True)
+                return self.check_free_ways(movs, pos, pos2, 15)
         else:
             value_in_pos = self.get_pos_val(pos)
             value_in_tgt = self.get_pos_val(pos2)
@@ -250,7 +252,7 @@ class Board:
                 movs = list(movements['p_w'])
             else:
                 movs = list(movements['p_b'])
-            if value_in_tgt != '    ':
+            if value_in_tgt != '     ':
                 if value_in_pos[1] == 'W':
                     movs.extend(movements['p_attack_w'])
                 else:
@@ -262,15 +264,12 @@ class Board:
                     movs.extend(movements['p_first_move_b'])
 
             for mov in movs:
-                if self.check_free_way(mov, pos, pos2, 1, True):
-                    if value_in_tgt[1] == value_in_pos[1]:
-                        if show:
-                            print(messages['OWN_ATTACK'])
-                        return 0
-                    return 1
-        if show:
-            print(messages['WRONG_MOVEMENT'])
-        return 0
+                mov_way = self.check_free_way(mov, pos, pos2, 1)
+                if mov_way['output']:
+                    if value_in_tgt[1] != value_in_pos[1]:
+                        return mov_way
+        return {'output': 0,
+                'errors': messages['NO_MOVEMENT']}
 
     def is_first_pawn_movement(self, pos):
         """
@@ -296,7 +295,7 @@ class Board:
             for j in range(len(self.squares[0])):
                 value = self.get_pos_val((i, j))
                 if value[1].upper() == turn.upper():
-                    if self.check_correct_move((i, j), king):
+                    if self.check_correct_move((i, j), king)['output']:
                         new_val = list(value)
                         new_val[3] = 'c'
                         self.put_pos_val((i, j), "".join(new_val))
@@ -336,6 +335,12 @@ class Board:
             self.white_deaths.append(piece[0])
 
     def check_movements(self, pos):
+        """
+        This method checks for all possible movements of a given piece
+        and marks the possible targets to be shown during the learn
+        mode
+        :param pos: (tuple) Position of the piece to analyze
+        """
         piece_type = self.get_pos_val(pos)[0].lower()
         value = self.get_pos_val(pos)
         if piece_type != 'p':
@@ -385,7 +390,6 @@ class Board:
                     moves.extend(movements['p_first_move_w'])
                 else:
                     moves.extend(movements['p_first_move_b'])
-            print(moves)
             for mov in moves:
                 new_pos = (pos[0] + mov[0],
                            pos[1] + mov[1])
