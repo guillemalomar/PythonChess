@@ -109,7 +109,7 @@ class GameExecution(tk.Frame):
         if self.phase == 'P' and pos_value[1] == self.turn:
             self.piece_to_move = position
             self.phase = next(phase_iter)
-            if self.mode == 'normal':
+            if self.mode == 'learn':
                 board.check_movements(position)
                 print(board.squares)
         elif self.phase == 'T':

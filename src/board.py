@@ -114,7 +114,7 @@ class Board:
         self.put_pos_val(pos2, ''.join(pos_val))
         self.put_pos_val(pos, '     ')
 
-        if targ_val != '    ':
+        if targ_val[0:4] != '    ':
             self.add_death(targ_val[0:2])
             new_val = list(pos_val)
             new_val[2] = 'k'
@@ -395,39 +395,3 @@ class Board:
                         new_val = list(new_val)
                         new_val[4] = 'l'
                         self.put_pos_val(new_pos, "".join(new_val))
-                        if "".join(new_val)[0:4] != '    ':
-                            break
-                    else:
-                        break
-                else:
-                    break
-        '''
-        else:
-            value_in_pos = self.get_pos_val(pos)
-            value_in_tgt = self.get_pos_val(pos2)
-            if value_in_pos[1] == 'W':
-                moves = movements['p_w']
-            else:
-                moves = movements['p_b']
-            if value_in_tgt != '    ':
-                if value_in_pos[1] == 'W':
-                    moves.extend(movements['p_attack_w'])
-                else:
-                    moves.extend(movements['p_attack_b'])
-            if self.is_first_pawn_movement(pos):
-                if value_in_pos[1] == 'W':
-                    moves.extend(movements['p_first_move_w'])
-                else:
-                    moves.extend(movements['p_first_move_b'])
-
-            for mov in moves:
-                if self.check_free_way(mov, pos, pos2, 1, True):
-                    if value_in_tgt[1] == value_in_pos[1]:
-                        if show:
-                            print(messages['OWN_ATTACK'])
-                        return 0
-                    return 1
-        if show:
-            print(messages['WRONG_MOVEMENT'])
-        return 0
-        '''
