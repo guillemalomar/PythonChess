@@ -40,7 +40,7 @@ if __name__ == "__main__":
         mode = 'normal'
 
     root = Tk()
-    app = GameExecution(mode)
     board = Board(size_x, size_y)
-    app.show_board(board)
+    app = GameExecution(mode, board)
+    app.show_board()
     root.mainloop()
