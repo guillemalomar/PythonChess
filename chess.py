@@ -24,14 +24,23 @@ if __name__ == "__main__":
     parser.add_argument('--sizey', action="store", dest="size_y",
                         help="Vertical size of the chess board",
                         default=size_y, type=int)
+    parser.add_argument('-l', action="store_true",
+                        help="Activate learning mode mode",
+                        default=False, dest='learn')
+    '''
     parser.add_argument('-c', action="store_true",
                         help="If you want to continue a game stored in src/logs/movements.log")
+    '''
     args = parser.parse_args()
     size_x = args.size_x
     size_y = args.size_y
+    if args.learn:
+        mode = 'learn'
+    else:
+        mode = 'normal'
 
     root = Tk()
-    app = GameExecution()
+    app = GameExecution(mode)
     board = Board(size_x, size_y)
     app.show_board(board)
     root.mainloop()
