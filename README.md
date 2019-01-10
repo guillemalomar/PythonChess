@@ -20,7 +20,14 @@
 
 ## Requirements
 
+### Language
+
 - Python +3.5
+
+You can download Python from [here](https://www.python.org/downloads/)
+
+### Libraries
+
 - pillow 5.3.0
 - termcolor 1.1.0
 
