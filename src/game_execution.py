@@ -128,7 +128,7 @@ class GameExecution(tk.Frame):
         self.piece_to_move = ''
         self.place_to_move = ''
         self.my_text.insert('1.0',
-                            turns[self.turn] + ' - ' + phases[self.phase] + ' |White:' + self.board.white_timer.format_time() + ' Black:' + self.board.black_timer.format_time() + '\n')
+                            turns[self.turn] + ' - ' + phases[self.phase] + ' |White:' + self.board.white_timer.format_time() + ' Black:' + self.board.black_timer.format_time() + '\n\n')
         self.my_text.pack(side=LEFT, padx=5)
         self.show_board()
 

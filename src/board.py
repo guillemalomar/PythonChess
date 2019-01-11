@@ -237,6 +237,33 @@ class Board:
         return {'output': False,
                 'errors': messages['NO_MOVEMENT']}
 
+    def check_free_king_ways(self, movs, pos, tgt):
+        """
+        This method checks if the king can move to the specified target.
+        It's different from other moves, because a king cannot move to a
+        position where it would be the target of an enemy piece.
+        :param movs: (list of tuples) Possible moves.
+        :param pos: (tuple) Current king position.
+        :param tgt: (tuple) Target position.
+        :return: (bool) if the move is correct.
+        """
+        king_val = self.get_pos_val(pos)
+        correct_move = False
+        for mov in movs:
+            if tgt[0] == pos[0] + mov[0] and \
+               tgt[1] == pos[1] + mov[1]:
+                correct_move = True
+                for i in range(len(self.squares)):
+                    for j in range(len(self.squares[0])):
+                        val = self.get_pos_val((i, j))
+                        if val[1].lower() == self.obtain_other_turn(king_val[1]):
+                            if self.check_correct_move((i, j), tgt)['output']:
+                                return {'output': False, 'errors': 'Moving to a check'}
+        if correct_move:
+            return {'output': True, 'errors': ''}
+        else:
+            return {'output': False, 'errors': 'The piece cannot move to that target'}
+
     def check_correct_move(self, pos, pos2):
         """
         This method checks if a move is possible.
@@ -248,7 +275,10 @@ class Board:
         if piece_type != 'p':
             movs = movements[piece_type]
             if piece_type == 'h' or piece_type == 'k':
-                return self.check_free_ways(movs, pos, pos2, 1)
+                if piece_type == 'h':
+                    return self.check_free_ways(movs, pos, pos2, 1)
+                else:
+                    return self.check_free_king_ways(movs, pos, pos2)
             else:
                 return self.check_free_ways(movs, pos, pos2, 15)
         else:
