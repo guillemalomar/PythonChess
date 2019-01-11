@@ -168,7 +168,7 @@ class GameExecution(tk.Frame):
                 self.my_text.insert('1.0',
                                     messages['PLAYER_WIN'].format(self.board.obtain_other_turn(self.turn).upper()) + '\n')
             self.my_text.pack(side=LEFT, padx=5)
-            self.board.print_board_in_terminal()
+            # self.board.print_board_in_terminal()
         self.show_board()
 
     def show_board(self):

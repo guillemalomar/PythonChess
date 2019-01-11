@@ -247,15 +247,22 @@ class Board:
         :param tgt: (tuple) Target position.
         :return: (bool) if the move is correct.
         """
-        incorrect_movement = False
+        king_val = self.get_pos_val(pos)
+        correct_move = False
         for mov in movs:
             if tgt[0] == pos[0] + mov[0] and \
                tgt[1] == pos[1] + mov[1]:
+                correct_move = True
                 for i in range(len(self.squares)):
                     for j in range(len(self.squares[0])):
-                        value = self.get_pos_val((i, j))
-                        if value[1].upper() == self.obtain_other_turn():
-                            pass
+                        val = self.get_pos_val((i, j))
+                        if val[1].lower() == self.obtain_other_turn(king_val[1]):
+                            if self.check_correct_move((i, j), tgt)['output']:
+                                return {'output': False, 'errors': 'Moving to a check'}
+        if correct_move:
+            return {'output': True, 'errors': ''}
+        else:
+            return {'output': False, 'errors': 'The piece cannot move to that target'}
 
     def check_correct_move(self, pos, pos2):
         """
